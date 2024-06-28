@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
+import Project from '../models/Project.js';  // Import the Project model
 
 const router = express.Router();
 
@@ -53,7 +54,12 @@ router.post('/login', [
 
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({
+      where: { email },
+      include: [
+        { model: Project, as: 'CollaboratedProjects' }
+      ]
+    });
     if (!user) return res.status(400).json({ message: 'User not found' });
 
     const isMatch = await bcrypt.compare(password, user.password);

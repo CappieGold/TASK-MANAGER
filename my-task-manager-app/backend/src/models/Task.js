@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
-import User from './User.js';
 
 const Task = sequelize.define('Task', {
   title: {
@@ -25,11 +24,4 @@ const Task = sequelize.define('Task', {
   },
 });
 
-// Table de jonction pour les collaborations
-const TaskCollaborator = sequelize.define('TaskCollaborator', {});
-
-Task.belongsToMany(User, { through: TaskCollaborator, as: 'Collaborators' });
-User.belongsToMany(Task, { through: TaskCollaborator });
-
 export default Task;
-export { TaskCollaborator };

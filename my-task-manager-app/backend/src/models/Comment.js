@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
-import Task from './Task.js';
-import User from './User.js';
 
 const Comment = sequelize.define('Comment', {
   content: {
@@ -17,8 +15,5 @@ const Comment = sequelize.define('Comment', {
     allowNull: false,
   },
 });
-
-Comment.belongsTo(Task, { foreignKey: 'taskId' });
-Comment.belongsTo(User, { foreignKey: 'userId' });
 
 export default Comment;

@@ -1,5 +1,5 @@
 import express from 'express';
-import sequelize from './config/database.js';
+import { sequelize, User, Project, Task, Comment, ProjectCollaborator, TaskCollaborator } from './models/index.js';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import taskRoutes from './routes/tasks.js';
@@ -48,43 +48,43 @@ const io = new Server(server, {
   },
 });
 
-// Connect to PostgreSQL
+// Connect to PostgreSQL and synchronize models
 sequelize.authenticate()
   .then(() => {
     console.log('Connection to PostgreSQL has been established successfully.');
-    // Synchronize all defined models to the DB.
     return sequelize.sync({ alter: true });
   })
   .then(() => {
-    console.log('Database & tables created!');
-    // Routes
-    app.use('/api/auth', authRoutes);
-    app.use('/api/tasks', taskRoutes);
-    app.use('/api/projects', projectRoutes);
-    app.use('/api/comments', commentRoutes);
-
-    app.get('/', (req, res) => {
-      res.send('Hello World!');
-    });
-
-    app.post('/test', (req, res) => {
-      console.log('Test route received:', req.body);
-      res.json({ message: 'Test route working' });
-    });
-
-    io.on('connection', (socket) => {
-      console.log('A user connected');
-      socket.on('disconnect', () => {
-        console.log('User disconnected');
-      });
-    });
-
-    app.set('io', io);
-
-    server.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
+    console.log('Database synchronized');
   })
   .catch(err => {
     console.error('Unable to connect to the database:', err);
   });
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/comments', commentRoutes);
+
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
+app.post('/test', (req, res) => {
+  console.log('Test route received:', req.body);
+  res.json({ message: 'Test route working' });
+});
+
+io.on('connection', (socket) => {
+  console.log('A user connected');
+  socket.on('disconnect', () => {
+    console.log('User disconnected');
+  });
+});
+
+app.set('io', io);
+
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

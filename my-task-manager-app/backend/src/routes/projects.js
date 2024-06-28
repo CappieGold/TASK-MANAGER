@@ -1,4 +1,5 @@
 import express from 'express';
+import { Op } from 'sequelize'; // Importez Op depuis sequelize
 import Project from '../models/Project.js';
 import User from '../models/User.js';
 import { verifyToken } from '../middleware/auth.js';
@@ -23,7 +24,22 @@ router.post('/', async (req, res) => {
 // Récupérer tous les projets de l'utilisateur
 router.get('/', async (req, res) => {
   try {
-    const projects = await Project.findAll({ where: { userId: req.userId } });
+    const projects = await Project.findAll({
+      where: {
+        [Op.or]: [
+          { userId: req.userId },
+          { '$Collaborators.id$': req.userId }
+        ]
+      },
+      include: [
+        {
+          model: User,
+          as: 'Collaborators',
+          attributes: ['id', 'username', 'email'],
+          through: { attributes: [] } // Exclure les attributs de la table de jointure
+        }
+      ]
+    });
     res.json(projects);
   } catch (error) {
     console.error('Error fetching projects:', error);

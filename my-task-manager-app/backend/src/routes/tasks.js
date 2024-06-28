@@ -25,6 +25,17 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Récupérer toutes les tâches de l'utilisateur
+router.get('/', async (req, res) => {
+  try {
+    const tasks = await Task.findAll({ where: { userId: req.userId } });
+    res.json(tasks);
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Récupérer toutes les tâches de l'utilisateur pour un projet spécifique
 router.get('/project/:projectId', async (req, res) => {
   const { projectId } = req.params;

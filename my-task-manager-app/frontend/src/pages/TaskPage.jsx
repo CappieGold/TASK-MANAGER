@@ -23,12 +23,28 @@ const TaskPage = () => {
 
         if (response.ok) {
           const data = await response.json();
-          setTasks(data);
+          const tasksWithComments = await Promise.all(
+            data.map(async (task) => {
+              const commentsResponse = await fetch(`/api/comments/${task.id}`, {
+                method: 'GET',
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              });
+              if (commentsResponse.ok) {
+                const comments = await commentsResponse.json();
+                return { ...task, comments };
+              }
+              return { ...task, comments: [] };
+            })
+          );
+          setTasks(tasksWithComments);
         } else {
-          console.error('Échec de la récupération des tâches', response.status, response.statusText);
+          console.error('Failed to fetch tasks', response.status, response.statusText);
         }
       } catch (error) {
-        console.error('Erreur:', error);
+        console.error('Error:', error);
       }
     };
 
@@ -50,14 +66,14 @@ const TaskPage = () => {
 
       if (response.ok) {
         const task = await response.json();
-        setTasks([...tasks, task]);
+        setTasks([...tasks, { ...task, comments: [] }]);
         setNewTaskTitle('');
         setNewTaskDescription('');
       } else {
-        console.error('Échec de la création de la tâche', response.status, response.statusText);
+        console.error('Failed to create task', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error('Error:', error);
     }
   };
 
@@ -74,10 +90,10 @@ const TaskPage = () => {
       if (response.ok) {
         setTasks(tasks.filter((task) => task.id !== id));
       } else {
-        console.error('Échec de la suppression de la tâche', response.status, response.statusText);
+        console.error('Failed to delete task', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error('Error:', error);
     }
   };
 
@@ -94,7 +110,7 @@ const TaskPage = () => {
 
       if (response.ok) {
         const comment = await response.json();
-        const updatedTasks = tasks.map(task => {
+        const updatedTasks = tasks.map((task) => {
           if (task.id === taskId) {
             return { ...task, comments: [...(task.comments || []), comment] };
           }
@@ -103,10 +119,10 @@ const TaskPage = () => {
         setTasks(updatedTasks);
         setNewCommentContent('');
       } else {
-        console.error('Échec de la création du commentaire', response.status, response.statusText);
+        console.error('Failed to create comment', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error('Error:', error);
     }
   };
 
@@ -121,21 +137,21 @@ const TaskPage = () => {
       });
 
       if (response.ok) {
-        const updatedTasks = tasks.map(task => {
+        const updatedTasks = tasks.map((task) => {
           if (task.id === taskId) {
             return {
               ...task,
-              comments: task.comments.filter(comment => comment.id !== commentId)
+              comments: task.comments.filter((comment) => comment.id !== commentId),
             };
           }
           return task;
         });
         setTasks(updatedTasks);
       } else {
-        console.error('Échec de la suppression du commentaire', response.status, response.statusText);
+        console.error('Failed to delete comment', response.status, response.statusText);
       }
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error('Error:', error);
     }
   };
 

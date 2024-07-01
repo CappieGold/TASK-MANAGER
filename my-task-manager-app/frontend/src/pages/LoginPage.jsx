@@ -1,11 +1,12 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useContext(AuthContext);
+  const navigate = useNavigate(); // Utiliser useNavigate
 
   const handleLogin = async () => {
     try {
@@ -19,8 +20,9 @@ const LoginPage = () => {
 
       if (response.ok) {
         const data = await response.json();
-        login(data.token);
+        login(data.token, data.user); // Assurez-vous que le login prend deux arguments : token et user
         console.log('Utilisateur connecté:', data);
+        navigate('/'); // Rediriger vers la page d'accueil après la connexion
       } else {
         console.error('Échec de la connexion', response.status, response.statusText);
       }

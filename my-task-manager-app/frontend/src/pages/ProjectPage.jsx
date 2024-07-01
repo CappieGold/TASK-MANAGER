@@ -6,6 +6,7 @@ function ProjectPage() {
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedProjectName, setSelectedProjectName] = useState(""); // Ajouter cet état
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
@@ -77,6 +78,7 @@ function ProjectPage() {
       if (response.ok) {
         setProjects(projects.filter(project => project.id !== id));
         setSelectedProject(null);
+        setSelectedProjectName(""); // Réinitialiser le nom du projet sélectionné
         setTasks([]);
       } else {
         console.error("Échec de la suppression du projet", response.status, response.statusText);
@@ -86,8 +88,9 @@ function ProjectPage() {
     }
   };
 
-  const handleSelectProject = async (projectId) => {
+  const handleSelectProject = async (projectId, projectName) => {
     setSelectedProject(projectId);
+    setSelectedProjectName(projectName); // Stocker le nom du projet sélectionné
     try {
       const response = await fetch(`/api/tasks/project/${projectId}`, {
         method: "GET",
@@ -270,7 +273,7 @@ function ProjectPage() {
       <ul className="list-group mt-4">
         {projects.map(project => (
           <li key={project.id} className="list-group-item d-flex justify-content-between align-items-center">
-            <div onClick={() => handleSelectProject(project.id)}>
+            <div onClick={() => handleSelectProject(project.id, project.name)}>
               <h5>{project.name}</h5>
               <p>{project.description}</p>
             </div>
@@ -292,7 +295,7 @@ function ProjectPage() {
 
       {selectedProject && (
         <div className="mt-5">
-          <h2>Tâches pour le projet {selectedProject}</h2>
+          <h2>Tâches pour le projet {selectedProjectName}</h2>
           <div className="mb-3">
             <input
               type="text"

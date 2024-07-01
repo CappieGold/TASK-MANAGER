@@ -4,7 +4,9 @@ import express from 'express';
 import Task from '../models/Task.js';
 import Comment from '../models/Comment.js';
 import User from '../models/User.js';
+import Project from '../models/Project.js';
 import { verifyToken } from '../middleware/auth.js';
+import { Op } from 'sequelize';
 
 const router = express.Router();
 
@@ -25,22 +27,31 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Récupérer toutes les tâches de l'utilisateur
-router.get('/', async (req, res) => {
-  try {
-    const tasks = await Task.findAll({ where: { userId: req.userId } });
-    res.json(tasks);
-  } catch (error) {
-    console.error('Error fetching tasks:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Récupérer toutes les tâches de l'utilisateur pour un projet spécifique
 router.get('/project/:projectId', async (req, res) => {
   const { projectId } = req.params;
   try {
-    const tasks = await Task.findAll({ where: { projectId, userId: req.userId } });
+    const project = await Project.findByPk(projectId, {
+      include: [{
+        model: User,
+        as: 'Collaborators',
+        where: { id: req.userId },
+        required: false
+      }]
+    });
+
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    const tasks = await Task.findAll({
+      where: { projectId },
+      include: [{
+        model: Comment,
+        include: [User]
+      }]
+    });
+
     res.json(tasks);
   } catch (error) {
     console.error('Error fetching tasks:', error);

@@ -6,7 +6,6 @@ function ProjectPage() {
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedProjectName, setSelectedProjectName] = useState("");
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
@@ -77,7 +76,6 @@ function ProjectPage() {
       if (response.ok) {
         setProjects(projects.filter(project => project.id !== id));
         setSelectedProject(null);
-        setSelectedProjectName("");
         setTasks([]);
       } else {
         console.error("Échec de la suppression du projet", response.status, response.statusText);
@@ -87,9 +85,8 @@ function ProjectPage() {
     }
   };
 
-  const handleSelectProject = async (projectId, projectName) => {
+  const handleSelectProject = async (projectId) => {
     setSelectedProject(projectId);
-    setSelectedProjectName(projectName);
     try {
       const response = await fetch(`/api/tasks/project/${projectId}`, {
         method: "GET",
@@ -278,7 +275,7 @@ function ProjectPage() {
 
       {selectedProject && (
         <div className="mt-5">
-          <h2>Tâches pour le projet {selectedProjectName}</h2>
+          <h2>Tâches pour le projet {projects.find(proj => proj.id === selectedProject)?.name}</h2>
           <div className="mb-3">
             <input
               type="text"
@@ -360,7 +357,7 @@ const ProjectItem = ({ project, onSelectProject, onDeleteProject, token }) => {
 
   return (
     <li className="list-group-item d-flex justify-content-between align-items-center">
-      <div onClick={() => onSelectProject(project.id, project.name)}>
+      <div onClick={() => onSelectProject(project.id)}>
         <h5>{project.name}</h5>
         <p>{project.description}</p>
       </div>

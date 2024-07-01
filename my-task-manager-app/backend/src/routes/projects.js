@@ -1,6 +1,10 @@
+// routes/projects.js
+
 import express from 'express';
-import { Op } from 'sequelize'; // Importez Op depuis sequelize
+import { Op } from 'sequelize';
 import Project from '../models/Project.js';
+import Task from '../models/Task.js';
+import Comment from '../models/Comment.js';
 import User from '../models/User.js';
 import { verifyToken } from '../middleware/auth.js';
 
@@ -37,6 +41,15 @@ router.get('/', async (req, res) => {
           as: 'Collaborators',
           attributes: ['id', 'username', 'email'],
           through: { attributes: [] } // Exclure les attributs de la table de jointure
+        },
+        {
+          model: Task,
+          include: [
+            {
+              model: Comment,
+              include: [User]
+            }
+          ]
         }
       ]
     });

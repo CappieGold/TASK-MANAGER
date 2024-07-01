@@ -6,12 +6,11 @@ function ProjectPage() {
   const [newProjectName, setNewProjectName] = useState("");
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedProjectName, setSelectedProjectName] = useState(""); // Ajouter cet état
+  const [selectedProjectName, setSelectedProjectName] = useState("");
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
   const [newCommentContent, setNewCommentContent] = useState("");
-  const [collaboratorEmail, setCollaboratorEmail] = useState("");
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
@@ -78,7 +77,7 @@ function ProjectPage() {
       if (response.ok) {
         setProjects(projects.filter(project => project.id !== id));
         setSelectedProject(null);
-        setSelectedProjectName(""); // Réinitialiser le nom du projet sélectionné
+        setSelectedProjectName("");
         setTasks([]);
       } else {
         console.error("Échec de la suppression du projet", response.status, response.statusText);
@@ -90,7 +89,7 @@ function ProjectPage() {
 
   const handleSelectProject = async (projectId, projectName) => {
     setSelectedProject(projectId);
-    setSelectedProjectName(projectName); // Stocker le nom du projet sélectionné
+    setSelectedProjectName(projectName);
     try {
       const response = await fetch(`/api/tasks/project/${projectId}`, {
         method: "GET",
@@ -102,7 +101,24 @@ function ProjectPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setTasks(data);
+        // Fetch comments for each task
+        const tasksWithComments = await Promise.all(data.map(async task => {
+          const commentsResponse = await fetch(`/api/comments/${task.id}`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json"
+            }
+          });
+          if (commentsResponse.ok) {
+            const comments = await commentsResponse.json();
+            return { ...task, comments };
+          } else {
+            console.error("Échec de la récupération des commentaires", commentsResponse.status, commentsResponse.statusText);
+            return task;
+          }
+        }));
+        setTasks(tasksWithComments);
       } else {
         console.error("Échec de la récupération des tâches", response.status, response.statusText);
       }
@@ -226,28 +242,6 @@ function ProjectPage() {
     }
   };
 
-  const handleAddCollaborator = async (projectId) => {
-    try {
-      const response = await fetch(`/api/projects/${projectId}/collaborators`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email: collaboratorEmail })
-      });
-
-      if (response.ok) {
-        setCollaboratorEmail("");
-        alert('Collaborator added successfully');
-      } else {
-        console.error("Échec de l'ajout du collaborateur", response.status, response.statusText);
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  };
-
   return (
     <div className="container">
       <h1>Projets</h1>
@@ -272,24 +266,13 @@ function ProjectPage() {
       <button className="btn btn-primary" onClick={handleCreateProject}>Créer un projet</button>
       <ul className="list-group mt-4">
         {projects.map(project => (
-          <li key={project.id} className="list-group-item d-flex justify-content-between align-items-center">
-            <div onClick={() => handleSelectProject(project.id, project.name)}>
-              <h5>{project.name}</h5>
-              <p>{project.description}</p>
-            </div>
-            <button className="btn btn-danger" onClick={() => handleDeleteProject(project.id)}>Supprimer</button>
-            {/* Ajouter un bouton pour ajouter un collaborateur */}
-            <div>
-              <input
-                type="email"
-                className="form-control"
-                placeholder="Email du collaborateur"
-                value={collaboratorEmail}
-                onChange={(e) => setCollaboratorEmail(e.target.value)}
-              />
-              <button className="btn btn-secondary" onClick={() => handleAddCollaborator(project.id)}>Ajouter un collaborateur</button>
-            </div>
-          </li>
+          <ProjectItem
+            key={project.id}
+            project={project}
+            onSelectProject={handleSelectProject}
+            onDeleteProject={handleDeleteProject}
+            token={token}
+          />
         ))}
       </ul>
 
@@ -349,5 +332,51 @@ function ProjectPage() {
     </div>
   );
 }
+
+const ProjectItem = ({ project, onSelectProject, onDeleteProject, token }) => {
+  const [collaboratorEmail, setCollaboratorEmail] = useState("");
+
+  const handleAddCollaborator = async () => {
+    try {
+      const response = await fetch(`/api/projects/${project.id}/collaborators`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email: collaboratorEmail })
+      });
+
+      if (response.ok) {
+        setCollaboratorEmail("");
+        alert('Collaborator added successfully');
+      } else {
+        console.error("Échec de l'ajout du collaborateur", response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  };
+
+  return (
+    <li className="list-group-item d-flex justify-content-between align-items-center">
+      <div onClick={() => onSelectProject(project.id, project.name)}>
+        <h5>{project.name}</h5>
+        <p>{project.description}</p>
+      </div>
+      <button className="btn btn-danger" onClick={() => onDeleteProject(project.id)}>Supprimer</button>
+      <div>
+        <input
+          type="email"
+          className="form-control"
+          placeholder="Email du collaborateur"
+          value={collaboratorEmail}
+          onChange={(e) => setCollaboratorEmail(e.target.value)}
+        />
+        <button className="btn btn-secondary" onClick={handleAddCollaborator}>Ajouter un collaborateur</button>
+      </div>
+    </li>
+  );
+};
 
 export default ProjectPage;

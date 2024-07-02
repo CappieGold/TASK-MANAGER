@@ -40,3 +40,18 @@
 .read-the-docs {
   color: #888;
 }
+
+.task-description {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px; /* Vous pouvez ajuster cette valeur en fonction de vos besoins */
+}
+
+.card {
+  cursor: pointer;
+}
+
+.card-body:hover {
+  background-color: #f8f9fa;
+}

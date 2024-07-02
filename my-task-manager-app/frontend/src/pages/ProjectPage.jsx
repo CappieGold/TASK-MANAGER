@@ -209,6 +209,7 @@ function ProjectPage() {
           task.id === taskId ? { ...task, comments: [...(task.comments || []), comment] } : task
         ));
         setNewCommentContent("");
+        setSelectedTask({ ...selectedTask, comments: [...(selectedTask.comments || []), comment] });
       } else {
         console.error("Échec de la création du commentaire", response.status, response.statusText);
       }
@@ -232,6 +233,7 @@ function ProjectPage() {
         setTasks(tasks.map(task =>
           task.id === taskId ? { ...task, comments } : task
         ));
+        setSelectedTask(tasks.find(task => task.id === taskId));
       } else {
         console.error("Échec de la récupération des commentaires", response.status, response.statusText);
       }
@@ -241,6 +243,7 @@ function ProjectPage() {
   };
 
   const handleDeleteComment = async (commentId, taskId) => {
+    console.log(`Trying to delete comment with id: ${commentId} for task: ${taskId}`);
     try {
       const response = await fetch(`/api/comments/${commentId}`, {
         method: "DELETE",
@@ -251,9 +254,14 @@ function ProjectPage() {
       });
 
       if (response.ok) {
+        console.log(`Comment with id: ${commentId} deleted successfully`);
         setTasks(tasks.map(task =>
           task.id === taskId ? { ...task, comments: task.comments.filter(comment => comment.id !== commentId) } : task
         ));
+        setSelectedTask({
+          ...selectedTask,
+          comments: selectedTask.comments.filter(comment => comment.id !== commentId)
+        });
       } else {
         console.error("Échec de la suppression du commentaire", response.status, response.statusText);
       }
@@ -289,6 +297,29 @@ function ProjectPage() {
   const handleSelectTask = (task) => {
     setSelectedTask(task);
     fetchCommentsForTask(task.id);
+  };
+
+  const handleAddCollaborator = async (projectId) => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}/collaborators`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email: collaboratorEmail })
+      });
+
+      if (response.ok) {
+        const updatedCollaborators = await response.json();
+        setCollaborators(updatedCollaborators);
+        setCollaboratorEmail("");
+      } else {
+        console.error("Échec de l'ajout du collaborateur", response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
   };
 
   return (
@@ -362,7 +393,7 @@ function ProjectPage() {
                   {tasks.map(task => (
                     <tr key={task.id} onClick={() => handleSelectTask(task)}>
                       <td>{task.title}</td>
-                      <td>{task.description}</td>
+                      <td className="task-description">{task.description}</td>
                       <td>
                         <Form.Control 
                           as="select" 
@@ -382,13 +413,13 @@ function ProjectPage() {
                 </tbody>
               </Table>
               {selectedTask && (
-                <div>
+                <div className="mt-4">
                   <h3>Commentaires pour la tâche: {selectedTask.title}</h3>
                   <ListGroup>
                     {selectedTask.comments && selectedTask.comments.map(comment => (
                       <ListGroupItem key={comment.id}>
                         {comment.content}
-                        <Button variant="danger" size="sm" onClick={() => handleDeleteComment(comment.id, selectedTask.id)}>Supprimer</Button>
+                        <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); handleDeleteComment(comment.id, selectedTask.id); }}>Supprimer</Button>
                       </ListGroupItem>
                     ))}
                   </ListGroup>

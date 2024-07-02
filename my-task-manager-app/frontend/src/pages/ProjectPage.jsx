@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { Container, Row, Col, Card, Form, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 
 function ProjectPage() {
   const [projects, setProjects] = useState([]);
@@ -100,7 +101,6 @@ function ProjectPage() {
 
       if (response.ok) {
         const data = await response.json();
-        // Fetch comments for each task
         const tasksWithComments = await Promise.all(data.map(async task => {
           const commentsResponse = await fetch(`/api/comments/${task.id}`, {
             method: "GET",
@@ -119,7 +119,6 @@ function ProjectPage() {
         }));
         setTasks(tasksWithComments);
 
-        // Fetch collaborators for the project
         const collaboratorsResponse = await fetch(`/api/projects/${projectId}/collaborators`, {
           method: "GET",
           headers: {
@@ -271,7 +270,7 @@ function ProjectPage() {
       if (response.ok) {
         const updatedTask = await response.json();
         const updatedTasks = tasks.map((task) =>
-          task.id === taskId ? { ...updatedTask, comments: task.comments } : task
+          task.id === taskId ? { ...task, status: updatedTask.status } : task
         );
         setTasks(updatedTasks);
       } else {
@@ -283,28 +282,26 @@ function ProjectPage() {
   };
 
   return (
-    <div className="container">
+    <Container>
       <h1>Projets</h1>
-      <div className="mb-3">
-        <input
+      <Form.Group controlId="newProjectName" className="mb-3">
+        <Form.Control
           type="text"
-          className="form-control"
           placeholder="Nom du projet"
           value={newProjectName}
           onChange={(e) => setNewProjectName(e.target.value)}
         />
-      </div>
-      <div className="mb-3">
-        <input
+      </Form.Group>
+      <Form.Group controlId="newProjectDescription" className="mb-3">
+        <Form.Control
           type="text"
-          className="form-control"
           placeholder="Description du projet"
           value={newProjectDescription}
           onChange={(e) => setNewProjectDescription(e.target.value)}
         />
-      </div>
-      <button className="btn btn-primary" onClick={handleCreateProject}>Créer un projet</button>
-      <ul className="list-group mt-4">
+      </Form.Group>
+      <Button variant="primary" onClick={handleCreateProject}>Créer un projet</Button>
+      <ListGroup className="mt-4">
         {projects.map(project => (
           <ProjectItem
             key={project.id}
@@ -314,86 +311,85 @@ function ProjectPage() {
             token={token}
           />
         ))}
-      </ul>
+      </ListGroup>
 
       {selectedProject && (
         <div className="mt-5">
           <h2>Tâches pour le projet {projects.find(proj => proj.id === selectedProject)?.name}</h2>
-          <div className="row">
-            <div className="col-md-8">
-              <div className="mb-3">
-                <input
+          <Row>
+            <Col md={8}>
+              <Form.Group controlId="newTaskTitle" className="mb-3">
+                <Form.Control
                   type="text"
-                  className="form-control"
                   placeholder="Titre de la tâche"
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
                 />
-              </div>
-              <div className="mb-3">
-                <input
+              </Form.Group>
+              <Form.Group controlId="newTaskDescription" className="mb-3">
+                <Form.Control
                   type="text"
-                  className="form-control"
                   placeholder="Description de la tâche"
                   value={newTaskDescription}
                   onChange={(e) => setNewTaskDescription(e.target.value)}
                 />
-              </div>
-              <button className="btn btn-primary" onClick={handleCreateTask}>Créer une tâche</button>
-              <ul className="list-group mt-4">
+              </Form.Group>
+              <Button variant="primary" onClick={handleCreateTask}>Créer une tâche</Button>
+              <ListGroup className="mt-4">
                 {tasks.map(task => (
-                  <li key={task.id} className="list-group-item d-flex justify-content-between align-items-center">
+                  <ListGroupItem key={task.id} className="d-flex justify-content-between align-items-center">
                     <div>
                       <h5>{task.title}</h5>
                       <p>{task.description}</p>
                       <p>Status: 
-                        <select 
+                        <Form.Control 
+                          as="select" 
                           value={task.status} 
                           onChange={(e) => handleChangeStatus(task.id, e.target.value)}
+                          className="d-inline-block w-auto"
                         >
                           <option value="pending">Pending</option>
                           <option value="in_progress">In Progress</option>
                           <option value="completed">Completed</option>
-                        </select>
+                        </Form.Control>
                       </p>
-                      {/* Afficher les commentaires */}
                       <ul>
                         {task.comments && task.comments.map(comment => (
                           <li key={comment.id} className="d-flex justify-content-between">
                             {comment.content}
-                            <button className="btn btn-danger btn-sm" onClick={() => handleDeleteComment(comment.id, task.id)}>Supprimer</button>
+                            <Button variant="danger" size="sm" onClick={() => handleDeleteComment(comment.id, task.id)}>Supprimer</Button>
                           </li>
                         ))}
                       </ul>
-                      {/* Formulaire pour ajouter des commentaires */}
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Ajouter un commentaire"
-                        value={newCommentContent}
-                        onChange={(e) => setNewCommentContent(e.target.value)}
-                      />
-                      <button className="btn btn-primary" onClick={() => handleCreateComment(task.id)}>Ajouter un commentaire</button>
+                      <Form.Group controlId="newCommentContent" className="mb-3">
+                        <Form.Control
+                          type="text"
+                          placeholder="Ajouter un commentaire"
+                          value={newCommentContent}
+                          onChange={(e) => setNewCommentContent(e.target.value)}
+                        />
+                      </Form.Group>
+                      <Button variant="primary" onClick={() => handleCreateComment(task.id)}>Ajouter un commentaire</Button>
                     </div>
-                    <button className="btn btn-danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</button>
-                  </li>
+                    <Button variant="danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</Button>
+                  </ListGroupItem>
                 ))}
-              </ul>
-            </div>
-            <div className="col-md-4">
+              </ListGroup>
+            </Col>
+            <Col md={4}>
               <h3>Collaborateurs</h3>
-              <ul className="list-group">
+              <ListGroup>
                 {collaborators.map(collaborator => (
-                  <li key={collaborator.id} className="list-group-item">
+                  <ListGroupItem key={collaborator.id}>
                     {collaborator.username} ({collaborator.email})
-                  </li>
+                  </ListGroupItem>
                 ))}
-              </ul>
-            </div>
-          </div>
+              </ListGroup>
+            </Col>
+          </Row>
         </div>
       )}
-    </div>
+    </Container>
   );
 }
 
@@ -423,23 +419,24 @@ const ProjectItem = ({ project, onSelectProject, onDeleteProject, token }) => {
   };
 
   return (
-    <li className="list-group-item d-flex justify-content-between align-items-center">
+    <ListGroupItem className="d-flex justify-content-between align-items-center">
       <div onClick={() => onSelectProject(project.id)}>
         <h5>{project.name}</h5>
         <p>{project.description}</p>
       </div>
-      <button className="btn btn-danger" onClick={() => onDeleteProject(project.id)}>Supprimer</button>
+      <Button variant="danger" onClick={() => onDeleteProject(project.id)}>Supprimer</Button>
       <div>
-        <input
-          type="email"
-          className="form-control"
-          placeholder="Email du collaborateur"
-          value={collaboratorEmail}
-          onChange={(e) => setCollaboratorEmail(e.target.value)}
-        />
-        <button className="btn btn-secondary" onClick={handleAddCollaborator}>Ajouter un collaborateur</button>
+        <Form.Group controlId="collaboratorEmail">
+          <Form.Control
+            type="email"
+            placeholder="Email du collaborateur"
+            value={collaboratorEmail}
+            onChange={(e) => setCollaboratorEmail(e.target.value)}
+          />
+        </Form.Group>
+        <Button variant="secondary" onClick={handleAddCollaborator}>Ajouter un collaborateur</Button>
       </div>
-    </li>
+    </ListGroupItem>
   );
 };
 

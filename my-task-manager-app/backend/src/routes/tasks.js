@@ -27,6 +27,36 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Récupérer toutes les tâches de l'utilisateur
+router.get('/', async (req, res) => {
+  try {
+    const tasks = await Task.findAll({
+      where: {
+        [Op.or]: [
+          { userId: req.userId },
+          { '$Collaborators.id$': req.userId }
+        ]
+      },
+      include: [
+        {
+          model: Comment,
+          include: [User]
+        },
+        {
+          model: User,
+          as: 'Collaborators',
+          attributes: ['id', 'username', 'email'],
+          through: { attributes: [] }
+        }
+      ]
+    });
+    res.json(tasks);
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Récupérer toutes les tâches de l'utilisateur pour un projet spécifique
 router.get('/project/:projectId', async (req, res) => {
   const { projectId } = req.params;
@@ -65,14 +95,25 @@ router.put('/:id', async (req, res) => {
   const { title, description, status, projectId } = req.body;
   try {
     const task = await Task.findByPk(id);
-    if (!task || task.userId !== req.userId) {
-      return res.status(404).json({ error: 'Task not found' });
+    const project = await Project.findByPk(task.projectId, {
+      include: [{
+        model: User,
+        as: 'Collaborators',
+        where: { id: req.userId },
+        required: false
+      }]
+    });
+    
+    if (!task || (task.userId !== req.userId && !project)) {
+      return res.status(404).json({ error: 'Task not found or user is not a collaborator' });
     }
-    task.title = title;
-    task.description = description;
-    task.status = status;
-    task.projectId = projectId;
+
+    task.title = title || task.title;
+    task.description = description || task.description;
+    task.status = status || task.status;
+    task.projectId = projectId || task.projectId;
     await task.save();
+    
     const io = req.app.get('io');
     io.emit('taskUpdated', task);
     res.json(task);
@@ -87,11 +128,19 @@ router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const task = await Task.findByPk(id);
-    if (!task || task.userId !== req.userId) {
-      return res.status(404).json({ error: 'Task not found' });
+    const project = await Project.findByPk(task.projectId, {
+      include: [{
+        model: User,
+        as: 'Collaborators',
+        where: { id: req.userId },
+        required: false
+      }]
+    });
+
+    if (!task || (task.userId !== req.userId && !project)) {
+      return res.status(404).json({ error: 'Task not found or user is not a collaborator' });
     }
 
-    // Supprimer les commentaires associés avant de supprimer la tâche
     await Comment.destroy({ where: { taskId: id } });
 
     await task.destroy();
@@ -100,27 +149,6 @@ router.delete('/:id', async (req, res) => {
     res.json({ message: 'Task deleted successfully' });
   } catch (error) {
     console.error('Error deleting task:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// Route pour ajouter un collaborateur à une tâche
-router.post('/:taskId/collaborators', async (req, res) => {
-  const { taskId } = req.params;
-  const { email } = req.body;
-  try {
-    const task = await Task.findByPk(taskId);
-    if (!task || task.userId !== req.userId) {
-      return res.status(404).json({ error: 'Task not found' });
-    }
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    await task.addCollaborator(user);
-    res.json({ message: 'Collaborator added successfully' });
-  } catch (error) {
-    console.error('Error adding collaborator:', error);
     res.status(500).json({ error: error.message });
   }
 });

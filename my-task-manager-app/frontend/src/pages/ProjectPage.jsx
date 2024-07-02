@@ -239,6 +239,31 @@ function ProjectPage() {
     }
   };
 
+  const handleChangeStatus = async (taskId, status) => {
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      if (response.ok) {
+        const updatedTask = await response.json();
+        const updatedTasks = tasks.map((task) =>
+          task.id === taskId ? updatedTask : task
+        );
+        setTasks(updatedTasks);
+      } else {
+        console.error('Failed to update status', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
   return (
     <div className="container">
       <h1>Projets</h1>
@@ -301,6 +326,16 @@ function ProjectPage() {
                 <div>
                   <h5>{task.title}</h5>
                   <p>{task.description}</p>
+                  <p>Status: 
+                    <select 
+                      value={task.status} 
+                      onChange={(e) => handleChangeStatus(task.id, e.target.value)}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                  </p>
                   {/* Afficher les commentaires */}
                   <ul>
                     {task.comments && task.comments.map(comment => (

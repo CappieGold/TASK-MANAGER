@@ -9,6 +9,7 @@ import DashboardPage from "./pages/DashboardPage";
 import RegisterPage from "./pages/RegisterPage"; // Importer la page d'inscription
 import Navbar from "./components/Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css';
 
 
 function App() {

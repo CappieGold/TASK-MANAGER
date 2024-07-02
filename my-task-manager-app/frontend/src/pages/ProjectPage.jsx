@@ -253,7 +253,7 @@ function ProjectPage() {
       if (response.ok) {
         const updatedTask = await response.json();
         const updatedTasks = tasks.map((task) =>
-          task.id === taskId ? updatedTask : task
+          task.id === taskId ? { ...updatedTask, comments: task.comments } : task
         );
         setTasks(updatedTasks);
       } else {

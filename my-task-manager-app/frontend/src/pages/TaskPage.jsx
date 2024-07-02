@@ -1,5 +1,3 @@
-// src/pages/TaskPage.jsx
-
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 
@@ -169,7 +167,7 @@ const TaskPage = () => {
       if (response.ok) {
         const updatedTask = await response.json();
         const updatedTasks = tasks.map((task) =>
-          task.id === taskId ? updatedTask : task
+          task.id === taskId ? { ...updatedTask, comments: task.comments } : task
         );
         setTasks(updatedTasks);
       } else {

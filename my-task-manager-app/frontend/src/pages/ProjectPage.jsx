@@ -10,6 +10,7 @@ function ProjectPage() {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
   const [newCommentContent, setNewCommentContent] = useState("");
+  const [collaborators, setCollaborators] = useState([]);
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
@@ -77,6 +78,7 @@ function ProjectPage() {
         setProjects(projects.filter(project => project.id !== id));
         setSelectedProject(null);
         setTasks([]);
+        setCollaborators([]);
       } else {
         console.error("Échec de la suppression du projet", response.status, response.statusText);
       }
@@ -116,6 +118,22 @@ function ProjectPage() {
           }
         }));
         setTasks(tasksWithComments);
+
+        // Fetch collaborators for the project
+        const collaboratorsResponse = await fetch(`/api/projects/${projectId}/collaborators`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (collaboratorsResponse.ok) {
+          const collaboratorsData = await collaboratorsResponse.json();
+          setCollaborators(collaboratorsData);
+        } else {
+          console.error("Échec de la récupération des collaborateurs", collaboratorsResponse.status, collaboratorsResponse.statusText);
+        }
       } else {
         console.error("Échec de la récupération des tâches", response.status, response.statusText);
       }
@@ -301,64 +319,78 @@ function ProjectPage() {
       {selectedProject && (
         <div className="mt-5">
           <h2>Tâches pour le projet {projects.find(proj => proj.id === selectedProject)?.name}</h2>
-          <div className="mb-3">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Titre de la tâche"
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-            />
+          <div className="row">
+            <div className="col-md-8">
+              <div className="mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Titre de la tâche"
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Description de la tâche"
+                  value={newTaskDescription}
+                  onChange={(e) => setNewTaskDescription(e.target.value)}
+                />
+              </div>
+              <button className="btn btn-primary" onClick={handleCreateTask}>Créer une tâche</button>
+              <ul className="list-group mt-4">
+                {tasks.map(task => (
+                  <li key={task.id} className="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                      <h5>{task.title}</h5>
+                      <p>{task.description}</p>
+                      <p>Status: 
+                        <select 
+                          value={task.status} 
+                          onChange={(e) => handleChangeStatus(task.id, e.target.value)}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="in_progress">In Progress</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </p>
+                      {/* Afficher les commentaires */}
+                      <ul>
+                        {task.comments && task.comments.map(comment => (
+                          <li key={comment.id} className="d-flex justify-content-between">
+                            {comment.content}
+                            <button className="btn btn-danger btn-sm" onClick={() => handleDeleteComment(comment.id, task.id)}>Supprimer</button>
+                          </li>
+                        ))}
+                      </ul>
+                      {/* Formulaire pour ajouter des commentaires */}
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Ajouter un commentaire"
+                        value={newCommentContent}
+                        onChange={(e) => setNewCommentContent(e.target.value)}
+                      />
+                      <button className="btn btn-primary" onClick={() => handleCreateComment(task.id)}>Ajouter un commentaire</button>
+                    </div>
+                    <button className="btn btn-danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="col-md-4">
+              <h3>Collaborateurs</h3>
+              <ul className="list-group">
+                {collaborators.map(collaborator => (
+                  <li key={collaborator.id} className="list-group-item">
+                    {collaborator.username} ({collaborator.email})
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <div className="mb-3">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Description de la tâche"
-              value={newTaskDescription}
-              onChange={(e) => setNewTaskDescription(e.target.value)}
-            />
-          </div>
-          <button className="btn btn-primary" onClick={handleCreateTask}>Créer une tâche</button>
-          <ul className="list-group mt-4">
-            {tasks.map(task => (
-              <li key={task.id} className="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <h5>{task.title}</h5>
-                  <p>{task.description}</p>
-                  <p>Status: 
-                    <select 
-                      value={task.status} 
-                      onChange={(e) => handleChangeStatus(task.id, e.target.value)}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="completed">Completed</option>
-                    </select>
-                  </p>
-                  {/* Afficher les commentaires */}
-                  <ul>
-                    {task.comments && task.comments.map(comment => (
-                      <li key={comment.id} className="d-flex justify-content-between">
-                        {comment.content}
-                        <button className="btn btn-danger btn-sm" onClick={() => handleDeleteComment(comment.id, task.id)}>Supprimer</button>
-                      </li>
-                    ))}
-                  </ul>
-                  {/* Formulaire pour ajouter des commentaires */}
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Ajouter un commentaire"
-                    value={newCommentContent}
-                    onChange={(e) => setNewCommentContent(e.target.value)}
-                  />
-                  <button className="btn btn-primary" onClick={() => handleCreateComment(task.id)}>Ajouter un commentaire</button>
-                </div>
-                <button className="btn btn-danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</button>
-              </li>
-            ))}
-          </ul>
         </div>
       )}
     </div>

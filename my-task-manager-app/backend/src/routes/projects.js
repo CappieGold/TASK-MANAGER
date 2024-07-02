@@ -116,4 +116,28 @@ router.post('/:projectId/collaborators', async (req, res) => {
   }
 });
 
+// Récupérer les collaborateurs d'un projet
+router.get('/:projectId/collaborators', async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const project = await Project.findByPk(projectId, {
+      include: [{
+        model: User,
+        as: 'Collaborators',
+        attributes: ['id', 'username', 'email'],
+        through: { attributes: [] }
+      }]
+    });
+
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+
+    res.json(project.Collaborators);
+  } catch (error) {
+    console.error('Error fetching collaborators:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

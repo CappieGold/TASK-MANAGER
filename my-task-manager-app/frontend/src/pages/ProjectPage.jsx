@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { Container, Row, Col, Card, Form, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, ListGroup, ListGroupItem, Table } from 'react-bootstrap';
 
 function ProjectPage() {
   const [projects, setProjects] = useState([]);
@@ -8,10 +8,12 @@ function ProjectPage() {
   const [newProjectDescription, setNewProjectDescription] = useState("");
   const [selectedProject, setSelectedProject] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [selectedTask, setSelectedTask] = useState(null);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
   const [newCommentContent, setNewCommentContent] = useState("");
   const [collaborators, setCollaborators] = useState([]);
+  const [collaboratorEmail, setCollaboratorEmail] = useState("");
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
@@ -80,6 +82,7 @@ function ProjectPage() {
         setSelectedProject(null);
         setTasks([]);
         setCollaborators([]);
+        setSelectedTask(null);
       } else {
         console.error("Échec de la suppression du projet", response.status, response.statusText);
       }
@@ -90,6 +93,7 @@ function ProjectPage() {
 
   const handleSelectProject = async (projectId) => {
     setSelectedProject(projectId);
+    setSelectedTask(null);
     try {
       const response = await fetch(`/api/tasks/project/${projectId}`, {
         method: "GET",
@@ -177,6 +181,9 @@ function ProjectPage() {
 
       if (response.ok) {
         setTasks(tasks.filter(task => task.id !== id));
+        if (selectedTask && selectedTask.id === id) {
+          setSelectedTask(null);
+        }
       } else {
         console.error("Échec de la suppression de la tâche", response.status, response.statusText);
       }
@@ -197,8 +204,11 @@ function ProjectPage() {
       });
 
       if (response.ok) {
+        const comment = await response.json();
+        setTasks(tasks.map(task =>
+          task.id === taskId ? { ...task, comments: [...(task.comments || []), comment] } : task
+        ));
         setNewCommentContent("");
-        fetchCommentsForTask(taskId); // Re-fetch comments after adding a new one
       } else {
         console.error("Échec de la création du commentaire", response.status, response.statusText);
       }
@@ -219,15 +229,9 @@ function ProjectPage() {
 
       if (response.ok) {
         const comments = await response.json();
-        setTasks((prevTasks) => {
-          const updatedTasks = prevTasks.map(task => {
-            if (task.id === taskId) {
-              return { ...task, comments };
-            }
-            return task;
-          });
-          return updatedTasks;
-        });
+        setTasks(tasks.map(task =>
+          task.id === taskId ? { ...task, comments } : task
+        ));
       } else {
         console.error("Échec de la récupération des commentaires", response.status, response.statusText);
       }
@@ -247,7 +251,9 @@ function ProjectPage() {
       });
 
       if (response.ok) {
-        fetchCommentsForTask(taskId);
+        setTasks(tasks.map(task =>
+          task.id === taskId ? { ...task, comments: task.comments.filter(comment => comment.id !== commentId) } : task
+        ));
       } else {
         console.error("Échec de la suppression du commentaire", response.status, response.statusText);
       }
@@ -269,16 +275,20 @@ function ProjectPage() {
 
       if (response.ok) {
         const updatedTask = await response.json();
-        const updatedTasks = tasks.map((task) =>
-          task.id === taskId ? { ...task, status: updatedTask.status } : task
-        );
-        setTasks(updatedTasks);
+        setTasks(tasks.map(task =>
+          task.id === taskId ? { ...task, status: updatedTask.status, comments: task.comments } : task
+        ));
       } else {
         console.error('Failed to update status', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Error:', error);
     }
+  };
+
+  const handleSelectTask = (task) => {
+    setSelectedTask(task);
+    fetchCommentsForTask(task.id);
   };
 
   return (
@@ -301,17 +311,21 @@ function ProjectPage() {
         />
       </Form.Group>
       <Button variant="primary" onClick={handleCreateProject}>Créer un projet</Button>
-      <ListGroup className="mt-4">
+      <Row className="mt-4">
         {projects.map(project => (
-          <ProjectItem
-            key={project.id}
-            project={project}
-            onSelectProject={handleSelectProject}
-            onDeleteProject={handleDeleteProject}
-            token={token}
-          />
+          <Col key={project.id} md={4} className="mb-4">
+            <Card>
+              <Card.Body onClick={() => handleSelectProject(project.id)}>
+                <Card.Title>{project.name}</Card.Title>
+                <Card.Text>{project.description}</Card.Text>
+              </Card.Body>
+              <Card.Footer>
+                <Button variant="danger" onClick={() => handleDeleteProject(project.id)}>Supprimer</Button>
+              </Card.Footer>
+            </Card>
+          </Col>
         ))}
-      </ListGroup>
+      </Row>
 
       {selectedProject && (
         <div className="mt-5">
@@ -335,46 +349,60 @@ function ProjectPage() {
                 />
               </Form.Group>
               <Button variant="primary" onClick={handleCreateTask}>Créer une tâche</Button>
-              <ListGroup className="mt-4">
-                {tasks.map(task => (
-                  <ListGroupItem key={task.id} className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <h5>{task.title}</h5>
-                      <p>{task.description}</p>
-                      <p>Status: 
+              <Table striped bordered hover className="mt-4">
+                <thead>
+                  <tr>
+                    <th>Titre</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tasks.map(task => (
+                    <tr key={task.id} onClick={() => handleSelectTask(task)}>
+                      <td>{task.title}</td>
+                      <td>{task.description}</td>
+                      <td>
                         <Form.Control 
                           as="select" 
                           value={task.status} 
                           onChange={(e) => handleChangeStatus(task.id, e.target.value)}
-                          className="d-inline-block w-auto"
                         >
                           <option value="pending">Pending</option>
                           <option value="in_progress">In Progress</option>
                           <option value="completed">Completed</option>
                         </Form.Control>
-                      </p>
-                      <ul>
-                        {task.comments && task.comments.map(comment => (
-                          <li key={comment.id} className="d-flex justify-content-between">
-                            {comment.content}
-                            <Button variant="danger" size="sm" onClick={() => handleDeleteComment(comment.id, task.id)}>Supprimer</Button>
-                          </li>
-                        ))}
-                      </ul>
-                      <Form.Group controlId="newCommentContent" className="mb-3">
-                        <Form.Control
-                          type="text"
-                          placeholder="Ajouter un commentaire"
-                          value={newCommentContent}
-                          onChange={(e) => setNewCommentContent(e.target.value)}
-                        />
-                      </Form.Group>
-                      <Button variant="primary" onClick={() => handleCreateComment(task.id)}>Ajouter un commentaire</Button>
-                    </div>
-                    <Button variant="danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</Button>
-                  </ListGroupItem>
-                ))}
-              </ListGroup>
+                      </td>
+                      <td>
+                        <Button variant="danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+              {selectedTask && (
+                <div>
+                  <h3>Commentaires pour la tâche: {selectedTask.title}</h3>
+                  <ListGroup>
+                    {selectedTask.comments && selectedTask.comments.map(comment => (
+                      <ListGroupItem key={comment.id}>
+                        {comment.content}
+                        <Button variant="danger" size="sm" onClick={() => handleDeleteComment(comment.id, selectedTask.id)}>Supprimer</Button>
+                      </ListGroupItem>
+                    ))}
+                  </ListGroup>
+                  <Form.Group controlId="newCommentContent" className="mt-3">
+                    <Form.Control
+                      type="text"
+                      placeholder="Ajouter un commentaire"
+                      value={newCommentContent}
+                      onChange={(e) => setNewCommentContent(e.target.value)}
+                    />
+                  </Form.Group>
+                  <Button variant="primary" onClick={() => handleCreateComment(selectedTask.id)}>Ajouter un commentaire</Button>
+                </div>
+              )}
             </Col>
             <Col md={4}>
               <h3>Collaborateurs</h3>
@@ -385,6 +413,15 @@ function ProjectPage() {
                   </ListGroupItem>
                 ))}
               </ListGroup>
+              <Form.Group controlId="collaboratorEmail" className="mt-3">
+                <Form.Control
+                  type="email"
+                  placeholder="Email du collaborateur"
+                  value={collaboratorEmail}
+                  onChange={(e) => setCollaboratorEmail(e.target.value)}
+                />
+              </Form.Group>
+              <Button variant="secondary" onClick={() => handleAddCollaborator(selectedProject)}>Ajouter un collaborateur</Button>
             </Col>
           </Row>
         </div>
@@ -392,52 +429,5 @@ function ProjectPage() {
     </Container>
   );
 }
-
-const ProjectItem = ({ project, onSelectProject, onDeleteProject, token }) => {
-  const [collaboratorEmail, setCollaboratorEmail] = useState("");
-
-  const handleAddCollaborator = async () => {
-    try {
-      const response = await fetch(`/api/projects/${project.id}/collaborators`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email: collaboratorEmail })
-      });
-
-      if (response.ok) {
-        setCollaboratorEmail("");
-        alert('Collaborator added successfully');
-      } else {
-        console.error("Échec de l'ajout du collaborateur", response.status, response.statusText);
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  };
-
-  return (
-    <ListGroupItem className="d-flex justify-content-between align-items-center">
-      <div onClick={() => onSelectProject(project.id)}>
-        <h5>{project.name}</h5>
-        <p>{project.description}</p>
-      </div>
-      <Button variant="danger" onClick={() => onDeleteProject(project.id)}>Supprimer</Button>
-      <div>
-        <Form.Group controlId="collaboratorEmail">
-          <Form.Control
-            type="email"
-            placeholder="Email du collaborateur"
-            value={collaboratorEmail}
-            onChange={(e) => setCollaboratorEmail(e.target.value)}
-          />
-        </Form.Group>
-        <Button variant="secondary" onClick={handleAddCollaborator}>Ajouter un collaborateur</Button>
-      </div>
-    </ListGroupItem>
-  );
-};
 
 export default ProjectPage;

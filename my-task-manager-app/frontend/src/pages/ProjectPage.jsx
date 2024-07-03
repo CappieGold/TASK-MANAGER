@@ -123,22 +123,30 @@ function ProjectPage() {
         }));
         setTasks(tasksWithComments);
 
-        const collaboratorsResponse = await fetch(`/api/projects/${projectId}/collaborators`, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        });
-
-        if (collaboratorsResponse.ok) {
-          const collaboratorsData = await collaboratorsResponse.json();
-          setCollaborators(Array.isArray(collaboratorsData) ? collaboratorsData : []);
-        } else {
-          console.error("Échec de la récupération des collaborateurs", collaboratorsResponse.status, collaboratorsResponse.statusText);
-        }
+        await fetchCollaborators(projectId);
       } else {
         console.error("Échec de la récupération des tâches", response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  };
+
+  const fetchCollaborators = async (projectId) => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}/collaborators`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (response.ok) {
+        const collaboratorsData = await response.json();
+        setCollaborators(Array.isArray(collaboratorsData) ? collaboratorsData : []);
+      } else {
+        console.error("Échec de la récupération des collaborateurs", response.status, response.statusText);
       }
     } catch (error) {
       console.error("Erreur:", error);
@@ -311,8 +319,7 @@ function ProjectPage() {
       });
 
       if (response.ok) {
-        const updatedCollaborators = await response.json();
-        setCollaborators(Array.isArray(updatedCollaborators) ? updatedCollaborators : []);
+        await fetchCollaborators(projectId); // Fetch updated collaborators
         setCollaboratorEmail("");
       } else {
         console.error("Échec de l'ajout du collaborateur", response.status, response.statusText);

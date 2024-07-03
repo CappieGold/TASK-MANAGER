@@ -122,7 +122,6 @@ function ProjectPage() {
           }
         }));
         setTasks(tasksWithComments);
-
         await fetchCollaborators(projectId);
       } else {
         console.error("Échec de la récupération des tâches", response.status, response.statusText);
@@ -144,7 +143,7 @@ function ProjectPage() {
 
       if (response.ok) {
         const collaboratorsData = await response.json();
-        setCollaborators(Array.isArray(collaboratorsData) ? collaboratorsData : []);
+        setCollaborators(collaboratorsData);
       } else {
         console.error("Échec de la récupération des collaborateurs", response.status, response.statusText);
       }
@@ -448,6 +447,7 @@ function ProjectPage() {
                 {collaborators.map(collaborator => (
                   <ListGroupItem key={collaborator.id}>
                     {collaborator.username} ({collaborator.email})
+                    {collaborator.isCreator && <strong> (Créateur)</strong>}
                   </ListGroupItem>
                 ))}
               </ListGroup>

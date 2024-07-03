@@ -1,5 +1,3 @@
-// routes/projects.js
-
 import express from 'express';
 import { Op } from 'sequelize';
 import Project from '../models/Project.js';
@@ -133,7 +131,15 @@ router.get('/:projectId/collaborators', async (req, res) => {
       return res.status(404).json({ error: 'Project not found' });
     }
 
-    res.json(project.Collaborators);
+    const collaborators = project.Collaborators.map(collaborator => {
+      const collaboratorData = collaborator.toJSON();
+      if (collaboratorData.id === project.userId) {
+        collaboratorData.isCreator = true;
+      }
+      return collaboratorData;
+    });
+
+    res.json(collaborators);
   } catch (error) {
     console.error('Error fetching collaborators:', error);
     res.status(500).json({ error: error.message });

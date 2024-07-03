@@ -133,7 +133,7 @@ function ProjectPage() {
 
         if (collaboratorsResponse.ok) {
           const collaboratorsData = await collaboratorsResponse.json();
-          setCollaborators(collaboratorsData);
+          setCollaborators(Array.isArray(collaboratorsData) ? collaboratorsData : []);
         } else {
           console.error("Échec de la récupération des collaborateurs", collaboratorsResponse.status, collaboratorsResponse.statusText);
         }
@@ -312,7 +312,7 @@ function ProjectPage() {
 
       if (response.ok) {
         const updatedCollaborators = await response.json();
-        setCollaborators(updatedCollaborators);
+        setCollaborators(Array.isArray(updatedCollaborators) ? updatedCollaborators : []);
         setCollaboratorEmail("");
       } else {
         console.error("Échec de l'ajout du collaborateur", response.status, response.statusText);

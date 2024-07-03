@@ -48,6 +48,11 @@ router.get('/', async (req, res) => {
               include: [User]
             }
           ]
+        },
+        {
+          model: User,
+          as: 'Creator',
+          attributes: ['id', 'username', 'email']
         }
       ]
     });
@@ -107,7 +112,32 @@ router.post('/:projectId/collaborators', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     await project.addCollaborator(user);
-    res.json({ message: 'Collaborator added successfully' });
+
+    // Récupérer à nouveau les collaborateurs et le créateur
+    const updatedProject = await Project.findByPk(projectId, {
+      include: [
+        {
+          model: User,
+          as: 'Collaborators',
+          attributes: ['id', 'username', 'email'],
+          through: { attributes: [] }
+        },
+        {
+          model: User,
+          as: 'Creator',
+          attributes: ['id', 'username', 'email']
+        }
+      ]
+    });
+
+    const collaborators = updatedProject.Collaborators.map(collaborator => collaborator.toJSON());
+    const creator = updatedProject.Creator ? updatedProject.Creator.toJSON() : null;
+    if (creator) {
+      creator.isCreator = true;
+      collaborators.unshift(creator);
+    }
+
+    res.json(collaborators);
   } catch (error) {
     console.error('Error adding collaborator:', error);
     res.status(500).json({ error: error.message });
@@ -124,6 +154,11 @@ router.get('/:projectId/collaborators', async (req, res) => {
         as: 'Collaborators',
         attributes: ['id', 'username', 'email'],
         through: { attributes: [] }
+      },
+      {
+        model: User,
+        as: 'Creator',
+        attributes: ['id', 'username', 'email']
       }]
     });
 
@@ -131,13 +166,12 @@ router.get('/:projectId/collaborators', async (req, res) => {
       return res.status(404).json({ error: 'Project not found' });
     }
 
-    const collaborators = project.Collaborators.map(collaborator => {
-      const collaboratorData = collaborator.toJSON();
-      if (collaboratorData.id === project.userId) {
-        collaboratorData.isCreator = true;
-      }
-      return collaboratorData;
-    });
+    const collaborators = project.Collaborators.map(collaborator => collaborator.toJSON());
+    const creator = project.Creator ? project.Creator.toJSON() : null;
+    if (creator) {
+      creator.isCreator = true;
+      collaborators.unshift(creator);
+    }
 
     res.json(collaborators);
   } catch (error) {

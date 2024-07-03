@@ -22,4 +22,6 @@ Comment.belongsTo(Task, { foreignKey: 'taskId' });
 User.hasMany(Comment, { foreignKey: 'userId' });
 Comment.belongsTo(User, { foreignKey: 'userId' });
 
+Project.belongsTo(User, { as: 'Creator', foreignKey: 'userId' }); // Ajout de cette ligne
+
 export { sequelize, User, Project, Task, Comment, ProjectCollaborator, TaskCollaborator };

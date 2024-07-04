@@ -6,7 +6,8 @@ import LoginPage from "./pages/LoginPage";
 import TaskPage from "./pages/TaskPage";
 import ProjectPage from "./pages/ProjectPage";
 import DashboardPage from "./pages/DashboardPage";
-import RegisterPage from "./pages/RegisterPage"; // Importer la page d'inscription
+import RegisterPage from "./pages/RegisterPage";
+import AccountPage from "./pages/AccountPage";
 import Navbar from "./components/Navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -24,6 +25,7 @@ function App() {
           <Route path="/tasks" element={<TaskPage />} />
           <Route path="/projects" element={<ProjectPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/account" element={<AccountPage />} />
         </Routes>
       </Router>
     </AuthProvider>

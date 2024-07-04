@@ -2,15 +2,24 @@
 
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { Pie } from "react-chartjs-2";
+import { Container, Row, Col } from "react-bootstrap";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
-function DashboardPage() {
-  const [tasks, setTasks] = useState([]);
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskDescription, setNewTaskDescription] = useState("");
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+const DashboardPage = () => {
   const { token } = useContext(AuthContext);
+  const [taskStats, setTaskStats] = useState({ pending: 0, inProgress: 0, completed: 0 });
+  const [projectStats, setProjectStats] = useState([]);
 
   useEffect(() => {
-    const fetchTasks = async () => {
+    const fetchTaskStats = async () => {
       try {
         const response = await fetch("/api/tasks", {
           method: "GET",
@@ -22,7 +31,10 @@ function DashboardPage() {
 
         if (response.ok) {
           const data = await response.json();
-          setTasks(data.filter(task => task.projectId === null));
+          const pending = data.filter(task => task.status === "pending").length;
+          const inProgress = data.filter(task => task.status === "in_progress").length;
+          const completed = data.filter(task => task.status === "completed").length;
+          setTaskStats({ pending, inProgress, completed });
         } else {
           console.error("Échec de la récupération des tâches", response.status, response.statusText);
         }
@@ -31,90 +43,80 @@ function DashboardPage() {
       }
     };
 
+    const fetchProjectStats = async () => {
+      try {
+        const response = await fetch("/api/projects", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+          }
+        });
+
+        if (response.ok) {
+          const projects = await response.json();
+          const stats = projects.map(project => {
+            const pending = project.Tasks.filter(task => task.status === "pending").length;
+            const inProgress = project.Tasks.filter(task => task.status === "in_progress").length;
+            const completed = project.Tasks.filter(task => task.status === "completed").length;
+            return {
+              projectName: project.name,
+              pending,
+              inProgress,
+              completed
+            };
+          });
+          setProjectStats(stats);
+        } else {
+          console.error("Échec de la récupération des projets", response.status, response.statusText);
+        }
+      } catch (error) {
+        console.error("Erreur:", error);
+      }
+    };
+
     if (token) {
-      fetchTasks();
+      fetchTaskStats();
+      fetchProjectStats();
     }
   }, [token]);
 
-  const handleCreateTask = async () => {
-    try {
-      const response = await fetch("/api/tasks", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ title: newTaskTitle, description: newTaskDescription })
-      });
-
-      if (response.ok) {
-        const task = await response.json();
-        setTasks([...tasks, task]);
-        setNewTaskTitle("");
-        setNewTaskDescription("");
-      } else {
-        console.error("Échec de la création de la tâche", response.status, response.statusText);
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  };
-
-  const handleDeleteTask = async (id) => {
-    try {
-      const response = await fetch(`/api/tasks/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
-
-      if (response.ok) {
-        setTasks(tasks.filter(task => task.id !== id));
-      } else {
-        console.error("Échec de la suppression de la tâche", response.status, response.statusText);
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
+  const taskData = {
+    labels: ["Pas commencé", "En cours", "Fini"],
+    datasets: [{
+      data: [taskStats.pending, taskStats.inProgress, taskStats.completed],
+      backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+    }],
   };
 
   return (
-    <div className="container">
+    <Container>
       <h1>Dashboard</h1>
-      <div className="mb-3">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Titre de la tâche"
-          value={newTaskTitle}
-          onChange={(e) => setNewTaskTitle(e.target.value)}
-        />
-      </div>
-      <div className="mb-3">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Description de la tâche"
-          value={newTaskDescription}
-          onChange={(e) => setNewTaskDescription(e.target.value)}
-        />
-      </div>
-      <button className="btn btn-primary" onClick={handleCreateTask}>Créer une tâche</button>
-      <ul className="list-group mt-4">
-        {tasks.map(task => (
-          <li key={task.id} className="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-              <h5>{task.title}</h5>
-              <p>{task.description}</p>
+      <Row>
+        <Col md={6}>
+          <h3>Statistiques des tâches</h3>
+          <Pie data={taskData} />
+        </Col>
+        <Col md={6}>
+          <h3>Statistiques des projets</h3>
+          {projectStats.map((project, index) => (
+            <div key={index}>
+              <h4>{project.projectName}</h4>
+              <Pie
+                data={{
+                  labels: ["Pas commencé", "En cours", "Fini"],
+                  datasets: [{
+                    data: [project.pending, project.inProgress, project.completed],
+                    backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+                  }],
+                }}
+              />
             </div>
-            <button className="btn btn-danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</button>
-          </li>
-        ))}
-      </ul>
-    </div>
+          ))}
+        </Col>
+      </Row>
+    </Container>
   );
-}
+};
 
 export default DashboardPage;

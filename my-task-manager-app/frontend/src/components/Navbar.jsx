@@ -20,6 +20,7 @@ const Navbar = () => {
           <>
             <li><Link to="/tasks">Tâches</Link></li>
             <li><Link to="/projects">Projets</Link></li>
+            <li><Link to="/dashboard">Dashboard</Link></li>
             <li><Link to="/account">Compte</Link></li>
             <li><button onClick={handleLogout}>Déconnexion</button></li>
           </>
@@ -30,4 +31,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

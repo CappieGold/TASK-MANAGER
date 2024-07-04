@@ -1,10 +1,10 @@
-// src/components/Footer.jsx
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
+import './Footer.css';  // Assurez-vous d'importer votre CSS
 
 const Footer = () => {
   return (
-    <footer className="footer bg-light text-center text-lg-start mt-5">
+    <footer className="footer">
       <Container fluid className="p-4">
         <Row>
           <Col lg={6} md={12} className="mb-4 mb-md-0">

@@ -1,3 +1,4 @@
+/* App.css */
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -11,9 +12,11 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -45,7 +48,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 300px; /* Vous pouvez ajuster cette valeur en fonction de vos besoins */
+  max-width: 300px;
 }
 
 .card {
@@ -56,7 +59,6 @@
   background-color: #f8f9fa;
 }
 
-/* src/App.css */
 body {
   display: flex;
   flex-direction: column;
@@ -82,12 +84,11 @@ main {
 }
 
 .project-card {
-  flex: 1 1 calc(33.333% - 1rem); /* 3 projets par ligne */
+  flex: 1 1 calc(33.333% - 1rem);
   box-sizing: border-box;
-  min-width: 200px; /* Vous pouvez ajuster cette valeur en fonction de vos besoins */
+  min-width: 200px;
 }
 
-/* App.css */
 .navbar {
   margin-bottom: 20px;
 }
@@ -103,7 +104,7 @@ main {
 }
 
 .nav-link:hover {
-  color: #ffce56 !important; /* Change the color on hover */
+  color: #ffce56 !important;
 }
 
 .btn-outline-light {

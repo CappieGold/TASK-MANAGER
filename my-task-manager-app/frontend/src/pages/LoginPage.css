@@ -1,0 +1,74 @@
+/* LoginPage.css */
+html, body {
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  body {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+    background-color: #003366 !important; /* Fond bleu */
+  }
+  
+  main {
+    flex: 1 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+  
+  .login-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  .login-box {
+    background-color: #daa520; /* Fond or */
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Ombre augmentée pour l'effet de flottement */
+    width: 300px;
+    text-align: center;
+  }
+  
+  .login-box h1 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .login-box input {
+    display: block;
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .login-box button {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #003366;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .login-box button:hover {
+    background-color: #002244;
+  }
+  
+  .login-box p {
+    margin-top: 1rem;
+  }
+  
+  .login-box a {
+    color: #003366;
+  }
+  

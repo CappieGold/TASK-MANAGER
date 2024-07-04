@@ -58,7 +58,9 @@ function DashboardPage() {
     }
   }, [token]);
 
-  const taskStatusCounts = tasks.reduce((counts, task) => {
+  const tasksWithoutProject = tasks.filter(task => !task.projectId);
+
+  const taskStatusCounts = tasksWithoutProject.reduce((counts, task) => {
     counts[task.status] = (counts[task.status] || 0) + 1;
     return counts;
   }, {});

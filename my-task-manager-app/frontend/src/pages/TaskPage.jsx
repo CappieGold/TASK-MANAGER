@@ -7,7 +7,7 @@ const TaskPage = () => {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
   const [newCommentContent, setNewCommentContent] = useState('');
-  const [selectedTask, setSelectedTask] = useState(null); // État pour la tâche sélectionnée
+  const [selectedTask, setSelectedTask] = useState(null);
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ const TaskPage = () => {
         if (response.ok) {
           const data = await response.json();
           const tasksWithComments = await Promise.all(
-            data.map(async (task) => {
+            data.filter(task => !task.projectId).map(async (task) => {  // Filter tasks without projectId
               const commentsResponse = await fetch(`/api/comments/${task.id}`, {
                 method: 'GET',
                 headers: {
@@ -90,7 +90,7 @@ const TaskPage = () => {
       if (response.ok) {
         setTasks(tasks.filter((task) => task.id !== id));
         if (selectedTask && selectedTask.id === id) {
-          setSelectedTask(null); // Déselectionner la tâche si elle est supprimée
+          setSelectedTask(null);
         }
       } else {
         console.error('Failed to delete task', response.status, response.statusText);
@@ -125,7 +125,7 @@ const TaskPage = () => {
           setSelectedTask({
             ...selectedTask,
             comments: [...(selectedTask.comments || []), comment],
-          }); // Mettre à jour les commentaires de la tâche sélectionnée
+          });
         }
       } else {
         console.error('Failed to create comment', response.status, response.statusText);
@@ -160,7 +160,7 @@ const TaskPage = () => {
           setSelectedTask({
             ...selectedTask,
             comments: selectedTask.comments.filter((comment) => comment.id !== commentId),
-          }); // Mettre à jour les commentaires de la tâche sélectionnée
+          });
         }
       } else {
         console.error('Failed to delete comment', response.status, response.statusText);
@@ -191,7 +191,7 @@ const TaskPage = () => {
           setSelectedTask({
             ...updatedTask,
             comments: selectedTask.comments,
-          }); // Mettre à jour les détails de la tâche sélectionnée
+          });
         }
       } else {
         console.error('Failed to update status', response.status, response.statusText);

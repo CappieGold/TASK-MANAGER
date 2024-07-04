@@ -368,7 +368,7 @@ function ProjectPage() {
         <div className="mt-5">
           <h2>Tâches pour le projet {projects.find(proj => proj.id === selectedProject)?.name}</h2>
           <Row>
-            <Col md={8}>
+            <Col md={12}>
               <Form.Group controlId="newTaskTitle" className="mb-3">
                 <Form.Control
                   type="text"
@@ -386,6 +386,10 @@ function ProjectPage() {
                 />
               </Form.Group>
               <Button variant="primary" onClick={handleCreateTask}>Créer une tâche</Button>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={12}>
               <Table striped bordered hover className="mt-4">
                 <thead>
                   <tr>
@@ -441,7 +445,9 @@ function ProjectPage() {
                 </div>
               )}
             </Col>
-            <Col md={4}>
+          </Row>
+          <Row>
+            <Col md={12}>
               <h3>Collaborateurs</h3>
               <ListGroup>
                 {collaborators.map(collaborator => (

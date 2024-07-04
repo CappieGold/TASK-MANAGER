@@ -68,6 +68,7 @@ body {
 
 main {
   flex: 1;
+  padding-bottom: 5rem;
 }
 
 .project-list {

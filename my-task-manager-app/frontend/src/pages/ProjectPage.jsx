@@ -348,9 +348,9 @@ function ProjectPage() {
         />
       </Form.Group>
       <Button variant="primary" onClick={handleCreateProject}>Créer un projet</Button>
-      <Row className="mt-4">
+      <Row className="mt-4 project-list">
         {projects.map(project => (
-          <Col key={project.id} md={4} className="mb-4">
+          <Col key={project.id} md={4} className="mb-4 project-card">
             <Card>
               <Card.Body onClick={() => handleSelectProject(project.id)}>
                 <Card.Title>{project.name}</Card.Title>

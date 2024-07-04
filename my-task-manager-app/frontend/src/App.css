@@ -73,3 +73,16 @@ main {
   padding: 1rem 0;
   width: 100%;
 }
+
+.project-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.project-card {
+  flex: 1 1 calc(33.333% - 1rem); /* 3 projets par ligne */
+  box-sizing: border-box;
+  min-width: 200px; /* Vous pouvez ajuster cette valeur en fonction de vos besoins */
+}

@@ -55,3 +55,21 @@
 .card-body:hover {
   background-color: #f8f9fa;
 }
+
+/* src/App.css */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+}
+
+main {
+  flex: 1;
+}
+
+.footer {
+  background-color: #f8f9fa;
+  padding: 1rem 0;
+  width: 100%;
+}

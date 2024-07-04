@@ -8,9 +8,9 @@ const Footer = () => {
       <Container fluid className="p-4">
         <Row>
           <Col lg={6} md={12} className="mb-4 mb-md-0">
-            <h5 className="text-uppercase">Footer Content</h5>
+            <h5 className="text-uppercase">task-manager</h5>
             <p>
-              Here you can use rows and columns to organize your footer content.
+              Managemer des tâches et projets
             </p>
           </Col>
 
@@ -54,7 +54,7 @@ const Footer = () => {
 
       <div className="text-center p-3 bg-dark text-white">
         © 2024 Copyright:
-        <a className="text-white" href="https://mdbootstrap.com/">YourWebsite.com</a>
+        <a className="text-white" href="https://mdbootstrap.com/">Task-manager.com</a>
       </div>
     </footer>
   );

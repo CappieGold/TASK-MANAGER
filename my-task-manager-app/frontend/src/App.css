@@ -86,3 +86,27 @@ main {
   box-sizing: border-box;
   min-width: 200px; /* Vous pouvez ajuster cette valeur en fonction de vos besoins */
 }
+
+/* App.css */
+.navbar {
+  margin-bottom: 20px;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.nav-link {
+  margin-right: 1rem;
+  font-size: 1.2rem;
+}
+
+.nav-link:hover {
+  color: #ffce56 !important; /* Change the color on hover */
+}
+
+.btn-outline-light {
+  margin-left: 1rem;
+  font-size: 1.2rem;
+}

@@ -31,7 +31,7 @@ html, body {
     background-color: #ecf0f1; /* Fond blanc cassé/Gris clair */
     padding: 2rem;
     border-radius: 8px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Ombre augmentée pour l'effet de flottement */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 1); /* Ombre augmentée pour l'effet de flottement */
     width: 300px;
     text-align: center;
   }

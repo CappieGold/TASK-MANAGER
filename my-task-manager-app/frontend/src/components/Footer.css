@@ -4,6 +4,5 @@
     padding: 1rem 0;
     width: 100%;
     color: #2c3e50; /* Optionnel : pour changer la couleur du texte */
-  }
-  
-  
+    margin-top: 2rem; /* Ajoutez cette ligne pour créer un espace au-dessus du footer */
+  }  

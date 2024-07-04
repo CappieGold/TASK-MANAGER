@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { Container, Row, Col, Table, Form, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
 
 const TaskPage = () => {
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
   const [newCommentContent, setNewCommentContent] = useState('');
+  const [selectedTask, setSelectedTask] = useState(null); // État pour la tâche sélectionnée
   const { token } = useContext(AuthContext);
 
   useEffect(() => {
@@ -87,6 +89,9 @@ const TaskPage = () => {
 
       if (response.ok) {
         setTasks(tasks.filter((task) => task.id !== id));
+        if (selectedTask && selectedTask.id === id) {
+          setSelectedTask(null); // Déselectionner la tâche si elle est supprimée
+        }
       } else {
         console.error('Failed to delete task', response.status, response.statusText);
       }
@@ -116,6 +121,12 @@ const TaskPage = () => {
         });
         setTasks(updatedTasks);
         setNewCommentContent('');
+        if (selectedTask && selectedTask.id === taskId) {
+          setSelectedTask({
+            ...selectedTask,
+            comments: [...(selectedTask.comments || []), comment],
+          }); // Mettre à jour les commentaires de la tâche sélectionnée
+        }
       } else {
         console.error('Failed to create comment', response.status, response.statusText);
       }
@@ -145,6 +156,12 @@ const TaskPage = () => {
           return task;
         });
         setTasks(updatedTasks);
+        if (selectedTask && selectedTask.id === taskId) {
+          setSelectedTask({
+            ...selectedTask,
+            comments: selectedTask.comments.filter((comment) => comment.id !== commentId),
+          }); // Mettre à jour les commentaires de la tâche sélectionnée
+        }
       } else {
         console.error('Failed to delete comment', response.status, response.statusText);
       }
@@ -170,6 +187,12 @@ const TaskPage = () => {
           task.id === taskId ? { ...updatedTask, comments: task.comments } : task
         );
         setTasks(updatedTasks);
+        if (selectedTask && selectedTask.id === taskId) {
+          setSelectedTask({
+            ...updatedTask,
+            comments: selectedTask.comments,
+          }); // Mettre à jour les détails de la tâche sélectionnée
+        }
       } else {
         console.error('Failed to update status', response.status, response.statusText);
       }
@@ -178,68 +201,85 @@ const TaskPage = () => {
     }
   };
 
+  const handleSelectTask = (task) => {
+    setSelectedTask(task);
+  };
+
   return (
-    <div className="container">
+    <Container>
       <h1>Tâches</h1>
-      <div className="mb-3">
-        <input
+      <Form.Group controlId="newTaskTitle" className="mb-3">
+        <Form.Control
           type="text"
-          className="form-control"
           placeholder="Titre de la tâche"
           value={newTaskTitle}
           onChange={(e) => setNewTaskTitle(e.target.value)}
         />
-      </div>
-      <div className="mb-3">
-        <input
+      </Form.Group>
+      <Form.Group controlId="newTaskDescription" className="mb-3">
+        <Form.Control
           type="text"
-          className="form-control"
           placeholder="Description de la tâche"
           value={newTaskDescription}
           onChange={(e) => setNewTaskDescription(e.target.value)}
         />
-      </div>
-      <button className="btn btn-primary" onClick={handleCreateTask}>Créer une tâche</button>
-      <ul className="list-group mt-4">
-        {tasks.map((task) => (
-          <li key={task.id} className="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-              <h5>{task.title}</h5>
-              <p>{task.description}</p>
-              <p>Status: 
-                <select 
+      </Form.Group>
+      <Button variant="primary" onClick={handleCreateTask}>Créer une tâche</Button>
+      <Table striped bordered hover className="mt-4">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tasks.map(task => (
+            <tr key={task.id} onClick={() => handleSelectTask(task)}>
+              <td>{task.title}</td>
+              <td className="task-description">{task.description}</td>
+              <td>
+                <Form.Control 
+                  as="select" 
                   value={task.status} 
                   onChange={(e) => handleChangeStatus(task.id, e.target.value)}
                 >
                   <option value="pending">Pending</option>
                   <option value="in_progress">In Progress</option>
                   <option value="completed">Completed</option>
-                </select>
-              </p>
-              {task.comments && (
-                <ul>
-                  {task.comments.map((comment) => (
-                    <li key={comment.id}>
-                      {comment.content}
-                      <button onClick={() => handleDeleteComment(task.id, comment.id)}>Supprimer</button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Ajouter un commentaire"
-                value={newCommentContent}
-                onChange={(e) => setNewCommentContent(e.target.value)}
-              />
-              <button className="btn btn-primary" onClick={() => handleCreateComment(task.id)}>Ajouter un commentaire</button>
-            </div>
-            <button className="btn btn-danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</button>
-          </li>
-        ))}
-      </ul>
-    </div>
+                </Form.Control>
+              </td>
+              <td>
+                <Button variant="danger" onClick={(e) => { e.stopPropagation(); handleDeleteTask(task.id); }}>Supprimer</Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      {selectedTask && (
+        <div className="mt-4">
+          <h3>Commentaires pour la tâche: {selectedTask.title}</h3>
+          <ListGroup>
+            {selectedTask.comments && selectedTask.comments.map(comment => (
+              <ListGroupItem key={comment.id}>
+                {comment.content}
+                <Button variant="danger" size="sm" onClick={() => handleDeleteComment(selectedTask.id, comment.id)}>Supprimer</Button>
+              </ListGroupItem>
+            ))}
+          </ListGroup>
+          <Form.Group controlId="newCommentContent" className="mt-3">
+            <Form.Control
+              type="text"
+              placeholder="Ajouter un commentaire"
+              value={newCommentContent}
+              onChange={(e) => setNewCommentContent(e.target.value)}
+            />
+          </Form.Group>
+          <Button variant="primary" onClick={() => handleCreateComment(selectedTask.id)}>Ajouter un commentaire</Button>
+        </div>
+      )}
+    </Container>
   );
 };
 

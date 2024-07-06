@@ -288,12 +288,14 @@ function ProjectPage() {
         },
         body: JSON.stringify({ status }),
       });
-
+  
       if (response.ok) {
         const updatedTask = await response.json();
-        setTasks(tasks.map(task =>
-          task.id === taskId ? { ...task, status: updatedTask.status, comments: task.comments } : task
-        ));
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task.id === taskId ? { ...task, status: updatedTask.status } : task
+          )
+        );
       } else {
         console.error('Failed to update status', response.status, response.statusText);
       }
@@ -417,7 +419,7 @@ function ProjectPage() {
                 </thead>
                 <tbody>
                   {tasks.map(task => (
-                    <tr key={task.id} onClick={() => handleSelectTask(task)} className={getStatusClassName(task.status)}>
+                    <tr key={task.id} onClick={() => handleSelectTask(task)} className={getStatusClassName(task.status)} data-task-id={task.id}>
                       <td>{task.title}</td>
                       <td className="task-description">{task.description}</td>
                       <td>
@@ -425,7 +427,7 @@ function ProjectPage() {
                           as="select" 
                           value={task.status} 
                           onChange={(e) => handleChangeStatus(task.id, e.target.value)}
-                          className="task-status-select"
+                          className={`task-status-select ${getStatusClassName(task.status)}`}
                         >
                           <option value="pending">Pending</option>
                           <option value="in_progress">In Progress</option>

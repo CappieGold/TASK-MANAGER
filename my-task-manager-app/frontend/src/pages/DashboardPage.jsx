@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { Pie } from "react-chartjs-2";
 import { Container, Row, Col } from "react-bootstrap";
 import 'chart.js/auto';
+import './DashboardPage.css'; // Importer le fichier CSS
 
 function DashboardPage() {
   const [tasks, setTasks] = useState([]);
@@ -109,7 +110,7 @@ function DashboardPage() {
       };
 
       return (
-        <Col md={6} key={index} className="mb-4">
+        <Col md={6} key={index} className="mb-4 pie-chart-container">
           <h4>{projectName}</h4>
           <Pie data={projectTaskStatusData} width={500} height={500} />
         </Col>

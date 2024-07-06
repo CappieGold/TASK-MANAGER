@@ -1,0 +1,34 @@
+/* DashboardPage.css */
+body {
+    background-color: #2c3e50; /* Fond bleu marine très foncé */
+    color: white; /* Couleur du texte par défaut en blanc */
+  }
+  
+  .text-center {
+    color: white; /* Assurer que les titres soient en blanc */
+  }
+  
+  h4 {
+    color: white; /* Couleur des titres des projets */
+  }
+  
+  .pie-chart-container h4 {
+    color: white; /* Assurer que les titres des projets au-dessus des graphiques soient en blanc */
+  }
+  
+  .pie-chart-container .chartjs-render-monitor {
+    color: white; /* Couleur des étiquettes des graphiques en blanc */
+  }
+  
+  .pie-chart-container {
+    color: white; /* Couleur des textes de conteneur des graphiques en blanc */
+  }
+  
+  .pie-chart-container .chartjs-label {
+    color: white; /* Couleur des labels des camemberts en blanc */
+  }
+  
+  .pie-chart-container .chartjs-legend {
+    color: white; /* Couleur de la légende des camemberts en blanc */
+  }
+  

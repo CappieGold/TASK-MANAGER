@@ -40,6 +40,7 @@ main {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 1); /* Ombre pour l'effet de flottement */
     width: 300px;
     text-align: center;
+    text-decoration: none; /* Supprime la décoration de texte pour les liens */
 }
 
 .home-card h2 {
@@ -48,4 +49,9 @@ main {
 
 .home-card p {
     margin-top: 0;
+}
+
+.home-card:hover {
+    transform: translateY(-5px);
+    transition: transform 0.2s ease-in-out;
 }

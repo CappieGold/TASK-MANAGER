@@ -1,0 +1,90 @@
+/* ProjectPage.css */
+.project-container {
+    background-color: #ecf0f1; /* Fond blanc cassé/Gris clair */
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 1);
+    margin-bottom: 2rem;
+  }
+  
+  .project-title {
+    margin-bottom: 1.5rem;
+    color: #2c3e50; /* Couleur du texte bleu marine très foncé */
+  }
+  
+  .project-form {
+    margin-bottom: 2rem;
+  }
+  
+  .project-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .project-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .project-card-body {
+    padding: 1.5rem;
+  }
+  
+  .project-card-footer {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .project-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  
+  .project-actions button {
+    margin-left: 0.5rem;
+  }
+  
+  .task-description {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+  
+  .task-status-select {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+  }
+  
+  .task-actions button {
+    margin-left: 0.5rem;
+  }
+  
+  .comment-section {
+    margin-top: 2rem;
+  }
+  
+  .comment-button {
+    margin-left: 1rem; /* Ajouter un espacement entre le bouton et le texte du commentaire */
+  }
+  
+  /* Ajouter des couleurs pour le bouton de statut */
+  .status-pending .task-status-select {
+    background-color: white;
+  }
+  
+  .status-in_progress .task-status-select {
+    background-color: orange;
+  }
+  
+  .status-completed .task-status-select {
+    background-color: lightcoral;
+  }
+  

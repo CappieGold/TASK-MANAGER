@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Container, Row, Col, Card, Form, Button, ListGroup, ListGroupItem, Table } from 'react-bootstrap';
+import './ProjectPage.css'; // Importer le fichier CSS
 
 function ProjectPage() {
   const [projects, setProjects] = useState([]);
@@ -328,35 +329,50 @@ function ProjectPage() {
     }
   };
 
+  const getStatusClassName = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'status-pending';
+      case 'in_progress':
+        return 'status-in_progress';
+      case 'completed':
+        return 'status-completed';
+      default:
+        return '';
+    }
+  };
+
   return (
     <Container>
-      <h1>Projets</h1>
-      <Form.Group controlId="newProjectName" className="mb-3">
-        <Form.Control
-          type="text"
-          placeholder="Nom du projet"
-          value={newProjectName}
-          onChange={(e) => setNewProjectName(e.target.value)}
-        />
-      </Form.Group>
-      <Form.Group controlId="newProjectDescription" className="mb-3">
-        <Form.Control
-          type="text"
-          placeholder="Description du projet"
-          value={newProjectDescription}
-          onChange={(e) => setNewProjectDescription(e.target.value)}
-        />
-      </Form.Group>
-      <Button variant="primary" onClick={handleCreateProject}>Créer un projet</Button>
+      <h1 className="project-title">Projets</h1>
+      <div className="project-form">
+        <Form.Group controlId="newProjectName" className="mb-3">
+          <Form.Control
+            type="text"
+            placeholder="Nom du projet"
+            value={newProjectName}
+            onChange={(e) => setNewProjectName(e.target.value)}
+          />
+        </Form.Group>
+        <Form.Group controlId="newProjectDescription" className="mb-3">
+          <Form.Control
+            type="text"
+            placeholder="Description du projet"
+            value={newProjectDescription}
+            onChange={(e) => setNewProjectDescription(e.target.value)}
+          />
+        </Form.Group>
+        <Button variant="primary" onClick={handleCreateProject}>Créer un projet</Button>
+      </div>
       <Row className="mt-4 project-list">
         {projects.map(project => (
           <Col key={project.id} md={4} className="mb-4 project-card">
-            <Card>
-              <Card.Body onClick={() => handleSelectProject(project.id)}>
+            <Card className="project-card">
+              <Card.Body className="project-card-body" onClick={() => handleSelectProject(project.id)}>
                 <Card.Title>{project.name}</Card.Title>
                 <Card.Text>{project.description}</Card.Text>
               </Card.Body>
-              <Card.Footer>
+              <Card.Footer className="project-card-footer">
                 <Button variant="danger" onClick={() => handleDeleteProject(project.id)}>Supprimer</Button>
               </Card.Footer>
             </Card>
@@ -365,7 +381,7 @@ function ProjectPage() {
       </Row>
 
       {selectedProject && (
-        <div className="mt-5">
+        <div className="mt-5 project-container">
           <h2>Tâches pour le projet {projects.find(proj => proj.id === selectedProject)?.name}</h2>
           <Row>
             <Col md={12}>
@@ -390,7 +406,7 @@ function ProjectPage() {
           </Row>
           <Row>
             <Col md={12}>
-              <Table striped bordered hover className="mt-4">
+              <Table striped bordered hover className="mt-4 project-table">
                 <thead>
                   <tr>
                     <th>Titre</th>
@@ -401,7 +417,7 @@ function ProjectPage() {
                 </thead>
                 <tbody>
                   {tasks.map(task => (
-                    <tr key={task.id} onClick={() => handleSelectTask(task)}>
+                    <tr key={task.id} onClick={() => handleSelectTask(task)} className={getStatusClassName(task.status)}>
                       <td>{task.title}</td>
                       <td className="task-description">{task.description}</td>
                       <td>
@@ -409,27 +425,28 @@ function ProjectPage() {
                           as="select" 
                           value={task.status} 
                           onChange={(e) => handleChangeStatus(task.id, e.target.value)}
+                          className="task-status-select"
                         >
                           <option value="pending">Pending</option>
                           <option value="in_progress">In Progress</option>
                           <option value="completed">Completed</option>
                         </Form.Control>
                       </td>
-                      <td>
-                        <Button variant="danger" onClick={() => handleDeleteTask(task.id)}>Supprimer</Button>
+                      <td className="task-actions">
+                        <Button variant="danger" onClick={(e) => { e.stopPropagation(); handleDeleteTask(task.id); }}>Supprimer</Button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
               {selectedTask && (
-                <div className="mt-4">
+                <div className="mt-4 comment-section">
                   <h3>Commentaires pour la tâche: {selectedTask.title}</h3>
                   <ListGroup>
                     {selectedTask.comments && selectedTask.comments.map(comment => (
                       <ListGroupItem key={comment.id}>
                         {comment.content}
-                        <Button variant="danger" size="sm" onClick={(e) => { e.stopPropagation(); handleDeleteComment(comment.id, selectedTask.id); }}>Supprimer</Button>
+                        <Button variant="danger" size="sm" className="comment-button" onClick={(e) => { e.stopPropagation(); handleDeleteComment(comment.id, selectedTask.id); }}>Supprimer</Button>
                       </ListGroupItem>
                     ))}
                   </ListGroup>

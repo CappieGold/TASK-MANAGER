@@ -112,7 +112,23 @@ function DashboardPage() {
       return (
         <Col md={6} key={index} className="mb-4 pie-chart-container">
           <h4>{projectName}</h4>
-          <Pie data={projectTaskStatusData} width={500} height={500} />
+          <Pie
+            data={projectTaskStatusData}
+            width={500}
+            height={500}
+            options={{
+              plugins: {
+                legend: {
+                  labels: {
+                    color: 'white', // Changer la couleur des labels de légende en blanc
+                    font: {
+                      size: 14
+                    }
+                  }
+                }
+              }
+            }}
+          />
         </Col>
       );
     });
@@ -135,7 +151,23 @@ function DashboardPage() {
       <Row className="justify-content-center">
         <Col md={6} className="text-center">
           <h3>Statistiques des tâches</h3>
-          <Pie data={taskStatusData} width={500} height={500} />
+          <Pie
+            data={taskStatusData}
+            width={500}
+            height={500}
+            options={{
+              plugins: {
+                legend: {
+                  labels: {
+                    color: 'white', // Changer la couleur des labels de légende en blanc
+                    font: {
+                      size: 14
+                    }
+                  }
+                }
+              }
+            }}
+          />
         </Col>
       </Row>
       <Row className="justify-content-center mt-5">

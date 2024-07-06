@@ -32,3 +32,6 @@ body {
     color: white; /* Couleur de la légende des camemberts en blanc */
   }
   
+  .legend-label {
+    color: white !important; /* Forcer la couleur des labels de légende en blanc */
+  }  

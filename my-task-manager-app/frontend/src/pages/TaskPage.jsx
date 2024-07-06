@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Container, Row, Col, Table, Form, Button, ListGroup, ListGroupItem } from 'react-bootstrap';
+import './TaskPage.css'; // Assurez-vous que le CSS est bien importé
 
 const TaskPage = () => {
   const [tasks, setTasks] = useState([]);
@@ -24,7 +25,7 @@ const TaskPage = () => {
         if (response.ok) {
           const data = await response.json();
           const tasksWithComments = await Promise.all(
-            data.filter(task => !task.projectId).map(async (task) => {  // Filter tasks without projectId
+            data.filter(task => !task.projectId).map(async (task) => {
               const commentsResponse = await fetch(`/api/comments/${task.id}`, {
                 method: 'GET',
                 headers: {
@@ -206,26 +207,28 @@ const TaskPage = () => {
   };
 
   return (
-    <Container>
-      <h1>Tâches</h1>
-      <Form.Group controlId="newTaskTitle" className="mb-3">
-        <Form.Control
-          type="text"
-          placeholder="Titre de la tâche"
-          value={newTaskTitle}
-          onChange={(e) => setNewTaskTitle(e.target.value)}
-        />
-      </Form.Group>
-      <Form.Group controlId="newTaskDescription" className="mb-3">
-        <Form.Control
-          type="text"
-          placeholder="Description de la tâche"
-          value={newTaskDescription}
-          onChange={(e) => setNewTaskDescription(e.target.value)}
-        />
-      </Form.Group>
-      <Button variant="primary" onClick={handleCreateTask}>Créer une tâche</Button>
-      <Table striped bordered hover className="mt-4">
+    <Container className="task-container">
+      <h1 className="task-title">Tâches</h1>
+      <div className="task-form">
+        <Form.Group controlId="newTaskTitle" className="mb-3">
+          <Form.Control
+            type="text"
+            placeholder="Titre de la tâche"
+            value={newTaskTitle}
+            onChange={(e) => setNewTaskTitle(e.target.value)}
+          />
+        </Form.Group>
+        <Form.Group controlId="newTaskDescription" className="mb-3">
+          <Form.Control
+            type="text"
+            placeholder="Description de la tâche"
+            value={newTaskDescription}
+            onChange={(e) => setNewTaskDescription(e.target.value)}
+          />
+        </Form.Group>
+        <Button variant="primary" onClick={handleCreateTask}>Créer une tâche</Button>
+      </div>
+      <Table striped bordered hover className="mt-4 task-table">
         <thead>
           <tr>
             <th>Titre</th>
@@ -242,6 +245,7 @@ const TaskPage = () => {
               <td>
                 <Form.Control 
                   as="select" 
+                  className="task-status-select"
                   value={task.status} 
                   onChange={(e) => handleChangeStatus(task.id, e.target.value)}
                 >
@@ -250,7 +254,7 @@ const TaskPage = () => {
                   <option value="completed">Completed</option>
                 </Form.Control>
               </td>
-              <td>
+              <td className="task-actions">
                 <Button variant="danger" onClick={(e) => { e.stopPropagation(); handleDeleteTask(task.id); }}>Supprimer</Button>
               </td>
             </tr>
@@ -258,13 +262,13 @@ const TaskPage = () => {
         </tbody>
       </Table>
       {selectedTask && (
-        <div className="mt-4">
+        <div className="comment-section">
           <h3>Commentaires pour la tâche: {selectedTask.title}</h3>
           <ListGroup>
             {selectedTask.comments && selectedTask.comments.map(comment => (
               <ListGroupItem key={comment.id}>
                 {comment.content}
-                <Button variant="danger" size="sm" onClick={() => handleDeleteComment(selectedTask.id, comment.id)}>Supprimer</Button>
+                <Button variant="danger" size="sm" className="comment-button" onClick={() => handleDeleteComment(selectedTask.id, comment.id)}>Supprimer</Button>
               </ListGroupItem>
             ))}
           </ListGroup>

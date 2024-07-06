@@ -1,0 +1,51 @@
+/* HomePage.css */
+html, body {
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+    background-color: #2c3e50 !important; /* Fond bleu marine très foncé */
+}
+
+main {
+    flex: 1 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+.home-container {
+    text-align: center;
+    color: #ecf0f1; /* Texte blanc cassé/gris clair */
+    padding: 2rem;
+}
+
+.home-cards {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.home-card {
+    background-color: #ecf0f1; /* Fond blanc cassé/Gris clair */
+    color: #2c3e50; /* Texte bleu marine très foncé */
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 1); /* Ombre pour l'effet de flottement */
+    width: 300px;
+    text-align: center;
+}
+
+.home-card h2 {
+    margin-bottom: 1rem;
+}
+
+.home-card p {
+    margin-top: 0;
+}

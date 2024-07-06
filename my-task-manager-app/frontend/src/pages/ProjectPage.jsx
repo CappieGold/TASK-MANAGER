@@ -346,25 +346,29 @@ function ProjectPage() {
 
   return (
     <Container>
-      <h1 className="project-title">Projets</h1>
       <div className="project-form">
-        <Form.Group controlId="newProjectName" className="mb-3">
-          <Form.Control
-            type="text"
-            placeholder="Nom du projet"
-            value={newProjectName}
-            onChange={(e) => setNewProjectName(e.target.value)}
-          />
-        </Form.Group>
-        <Form.Group controlId="newProjectDescription" className="mb-3">
-          <Form.Control
-            type="text"
-            placeholder="Description du projet"
-            value={newProjectDescription}
-            onChange={(e) => setNewProjectDescription(e.target.value)}
-          />
-        </Form.Group>
-        <Button variant="primary" onClick={handleCreateProject}>Créer un projet</Button>
+        <Card className="project-form-card">
+          <Card.Body>
+            <h1 className="project-title">Projets</h1>
+            <Form.Group controlId="newProjectName" className="mb-3">
+              <Form.Control
+                type="text"
+                placeholder="Nom du projet"
+                value={newProjectName}
+                onChange={(e) => setNewProjectName(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group controlId="newProjectDescription" className="mb-3">
+              <Form.Control
+                type="text"
+                placeholder="Description du projet"
+                value={newProjectDescription}
+                onChange={(e) => setNewProjectDescription(e.target.value)}
+              />
+            </Form.Group>
+            <Button variant="primary" onClick={handleCreateProject}>Créer un projet</Button>
+          </Card.Body>
+        </Card>
       </div>
       <Row className="mt-4 project-list">
         {projects.map(project => (
@@ -427,7 +431,7 @@ function ProjectPage() {
                           as="select" 
                           value={task.status} 
                           onChange={(e) => handleChangeStatus(task.id, e.target.value)}
-                          className={`task-status-select ${getStatusClassName(task.status)}`}
+                          className="task-status-select"
                         >
                           <option value="pending">Pending</option>
                           <option value="in_progress">In Progress</option>

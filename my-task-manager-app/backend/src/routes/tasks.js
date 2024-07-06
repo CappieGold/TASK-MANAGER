@@ -27,28 +27,31 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Récupérer toutes les tâches de l'utilisateur
+// Récupérer toutes les tâches de l'utilisateur ou des projets auxquels il collabore
 router.get('/', async (req, res) => {
   try {
     const tasks = await Task.findAll({
-      where: {
-        [Op.or]: [
-          { userId: req.userId },
-          { '$Collaborators.id$': req.userId }
-        ]
-      },
       include: [
         {
           model: Comment,
           include: [User]
         },
         {
-          model: User,
-          as: 'Collaborators',
-          attributes: ['id', 'username', 'email'],
-          through: { attributes: [] }
+          model: Project,
+          include: [{
+            model: User,
+            as: 'Collaborators',
+            where: { id: req.userId },
+            required: true
+          }]
         }
-      ]
+      ],
+      where: {
+        [Op.or]: [
+          { userId: req.userId },
+          { '$Project.Collaborators.id$': req.userId }
+        ]
+      }
     });
     res.json(tasks);
   } catch (error) {

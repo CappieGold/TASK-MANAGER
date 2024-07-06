@@ -23,7 +23,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Récupérer tous les projets de l'utilisateur
+// Récupérer tous les projets de l'utilisateur ou ceux auxquels il collabore
 router.get('/', async (req, res) => {
   try {
     const projects = await Project.findAll({

@@ -1,93 +1,60 @@
 /* TaskPage.css */
-html, body {
-    height: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-body {
-    display: flex !important;
-    flex-direction: column !important;
-    min-height: 100vh !important;
-    background-color: #2c3e50 !important; /* Fond bleu marine très foncé */
-}
-
-main {
-    flex: 1 !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-}
-
 .task-container {
-    width: 100%;
-    padding: 2rem;
-}
-
-.task-title {
-    color: #ecf0f1; /* Couleur du texte blanc cassé/gris clair */
-}
-
-.task-form {
-    background-color: #ecf0f1; /* Fond blanc cassé/gris clair */
+    background-color: #ecf0f1;
     padding: 2rem;
     border-radius: 8px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Ombre pour l'effet de flottement */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 1);
+  }
+  
+  .task-title {
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+  }
+  
+  .task-form {
     margin-bottom: 2rem;
-}
-
-.task-table {
-    background-color: #ecf0f1; /* Fond blanc cassé/gris clair */
+  }
+  
+  .task-table {
+    background-color: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Ombre pour l'effet de flottement */
-}
-
-.task-table th,
-.task-table td {
-    color: #2c3e50; /* Couleur du texte bleu marine très foncé */
-}
-
-.task-table th {
-    background-color: #2980b9; /* En-tête de table bleu vif */
-    color: #fff; /* Couleur du texte blanc */
-}
-
-.task-table td {
-    background-color: #ecf0f1; /* Fond des cellules blanc cassé/gris clair */
-}
-
-.task-actions button {
-    margin-right: 0.5rem;
-}
-
-.comment-section {
-    background-color: #ecf0f1; /* Fond blanc cassé/gris clair */
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Ombre pour l'effet de flottement */
-    margin-top: 2rem;
-}
-
-.task-status-select {
+    overflow: hidden;
+  }
+  
+  .task-description {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+  
+  .task-status-select {
     width: 100%;
-}
-
-.task-status-select option[value="in_progress"] {
-    background-color: orange !important;
-    color: white;
-}
-
-.task-status-select option[value="completed"] {
-    background-color: lightcoral !important;
-    color: white;
-}
-
-.list-group-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.comment-button {
-    margin-left: 10px; /* Décale légèrement le bouton de suppression */
-}
+    padding: 0.5rem;
+    border-radius: 4px;
+  }
+  
+  .task-actions button {
+    margin-left: 0.5rem;
+  }
+  
+  .comment-section {
+    margin-top: 2rem;
+  }
+  
+  .comment-button {
+    margin-left: 1rem; /* Ajouter un espacement entre le bouton et le texte du commentaire */
+  }
+  
+  /* Ajouter des couleurs pour le bouton de statut */
+  .status-pending .task-status-select {
+    background-color: white;
+  }
+  
+  .status-in_progress .task-status-select {
+    background-color: orange;
+  }
+  
+  .status-completed .task-status-select {
+    background-color: lightcoral;
+  }

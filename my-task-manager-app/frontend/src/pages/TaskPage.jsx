@@ -206,6 +206,19 @@ const TaskPage = () => {
     setSelectedTask(task);
   };
 
+  const getStatusClassName = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'status-pending';
+      case 'in_progress':
+        return 'status-in_progress';
+      case 'completed':
+        return 'status-completed';
+      default:
+        return '';
+    }
+  };
+
   return (
     <Container className="task-container">
       <h1 className="task-title">Tâches</h1>
@@ -239,7 +252,7 @@ const TaskPage = () => {
         </thead>
         <tbody>
           {tasks.map(task => (
-            <tr key={task.id} onClick={() => handleSelectTask(task)}>
+            <tr key={task.id} onClick={() => handleSelectTask(task)} className={getStatusClassName(task.status)}>
               <td>{task.title}</td>
               <td className="task-description">{task.description}</td>
               <td>

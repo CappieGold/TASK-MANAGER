@@ -1,0 +1,23 @@
+/* AccountPage.css */
+.card-custom {
+    background-color: #ecf0f1; /* Fond blanc cassé/Gris clair */
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 1); /* Ajouter des ombres à la carte */
+    color: #2c3e50; /* Couleur du texte */
+  }
+  
+  .card-custom h1, .card-custom h2, .card-custom p, .card-custom .form-control {
+    color: #2c3e50; /* Assurer que tous les éléments de texte à l'intérieur de la carte aient la bonne couleur */
+  }
+  
+  .card-custom .btn-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+  }
+  
+  .card-custom .btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+  }
+  

@@ -1,33 +1,40 @@
-// src/pages/RegisterPage.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './RegisterPage.css'; // Assurez-vous que le CSS est bien importé
+import './RegisterPage.css';
 
 const RegisterPage = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); // Ajout du state pour l'erreur
   const navigate = useNavigate();
 
   const handleRegister = async () => {
+    setError('');
     try {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password })
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
         console.log('User registered:', data);
         navigate('/login');
       } else {
-        console.error('Failed to register', response.status, response.statusText);
+        // Affichez le message d'erreur du backend s'il y en a un
+        // data.errors est utilisé par express-validator, data.error par vos erreurs custom
+        if (data.errors && data.errors.length > 0) {
+          setError(data.errors.map(err => err.msg).join(' | '));
+        } else {
+          setError(data.error || 'Une erreur est survenue.');
+        }
       }
     } catch (error) {
       console.error('Error:', error);
+      setError('Une erreur interne est survenue. Veuillez réessayer plus tard.');
     }
   };
 
@@ -35,6 +42,7 @@ const RegisterPage = () => {
     <div className="register-container">
       <div className="register-box">
         <h1>Créer un compte</h1>
+        {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>} {/* Affiche l'erreur en rouge */}
         <input
           type="text"
           placeholder="Nom d'utilisateur"

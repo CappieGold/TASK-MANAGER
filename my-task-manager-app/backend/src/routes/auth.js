@@ -12,7 +12,9 @@ const router = express.Router();
 router.post('/register', [
   body('username').notEmpty().withMessage('Username is required'),
   body('email').isEmail().withMessage('Valid email is required'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+  body('password')
+    .matches(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/)
+    .withMessage('Password must be at least 8 characters long and include an uppercase letter, a number, and a special character')
 ], async (req, res) => {
   console.log('Register route received:', req.body); // Log the incoming request
   const errors = validationResult(req);
@@ -60,10 +62,13 @@ router.post('/login', [
         { model: Project, as: 'CollaboratedProjects' }
       ]
     });
-    if (!user) return res.status(400).json({ message: 'User not found' });
 
+    // Si l'utilisateur n'existe pas, renvoie une seule erreur générique
+    if (!user) return res.status(400).json({ error: 'Invalid email or password' });
+
+    // Vérification du mot de passe
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+    if (!isMatch) return res.status(400).json({ error: 'Invalid email or password' });
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token, user });

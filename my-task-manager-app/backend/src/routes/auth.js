@@ -4,7 +4,7 @@ import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { body, validationResult } from 'express-validator';
-import Project from '../models/Project.js';  // Import the Project model
+import Project from '../models/Project.js';
 
 const router = express.Router();
 
